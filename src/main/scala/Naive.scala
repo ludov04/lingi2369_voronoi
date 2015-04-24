@@ -15,7 +15,7 @@ object Naive {
   var myMatrix = ofDim[LineSegment](3,3)
 
 
-  implicit def envelopeToLineString(env : Envelope) : LineString = {
+  implicit def envelopeToLinearRing(env : Envelope) : LinearRing = {
     val coordinatesArray = Array(
       new Coordinate(env.getMinX, env.getMaxY, 0),
       new Coordinate(env.getMaxX, env.getMaxY, 0),
@@ -24,7 +24,7 @@ object Naive {
     )
     val coordinatesSeq : CoordinateArraySequence = new CoordinateArraySequence(coordinatesArray)
 
-    new LineString(coordinatesSeq, factory)
+    new LinearRing(coordinatesSeq, factory)
   }
 
 
@@ -35,8 +35,8 @@ object Naive {
     ??? 
   }
 
-  def computeBisector(p1 : Point, p2 : Point, env : Envelope) = {
-    if (p2.getY - p1.getY == 0){
+  def computeBisector(p1 : Point, p2 : Point, env : Envelope) : LineSegment = {
+    if (p2.getY == p1.getY){
       val b = (p1.getX + p2.getX)/2
       new LineSegment(env.getMinX, b, env.getMaxX, b)
     } else {
@@ -46,8 +46,22 @@ object Naive {
     }
   }
 
-  def computePolygon(p : Point, b : LineSegment, env : Envelope) = {
-    val mainPol = new Polygon()
+  def computePolygon(p : Point, b : LineSegment, env : Envelope) : Polygon = {
+    val mainPol = new Polygon(envelopeToLinearRing(env), Array[LinearRing](), factory)
+    val pol1 = {
+      if (b.p0.y < env.getMinY) {
+        new Polygon(
+          new LinearRing(
+            new CoordinateArraySequence(
+              Array(b.p0, new Coordinate(env.getMaxX, env.getMinY, 0), b.p1)),
+            factory),
+          Array[LinearRing](), factory)
+      } else if (b.p1.y < env.getMinY) {
+
+      } else {
+
+      }
+    }
   }
 
 
