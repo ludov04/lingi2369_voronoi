@@ -2,17 +2,22 @@
  * Created by ludov on 24/04/15.
  */
 
+import java.util.Collection
+
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequence
 import com.vividsolutions.jts.geom._
+import com.vividsolutions.jts.operation.polygonize.Polygonizer
 import language.implicitConversions
 import Array._
+import scala.collection.JavaConversions._
 
 
-object Naive {
+class Naive(points: MultiPoint) {
 
   val factory = new GeometryFactory()
-
-  var myMatrix = ofDim[LineSegment](3,3)
+  val n : Int = points.getNumGeometries()
+  val segmentMatrix: Array[Array[LineSegment]] = ofDim[LineSegment](n, n)
+  val envelope = points.getEnvelopeInternal
 
 
   implicit def envelopeToLinearRing(env : Envelope) : LinearRing = {
@@ -29,16 +34,16 @@ object Naive {
 
 
 
-  def segmentMatrix(points: MultiPoint, env : Envelope) = {
+
+  def computeSegmentMatrix(env : Envelope) = {
     val coordinates = points.getCoordinates
-    val length = coordinates.length
-    var matrix = ofDim[LineSegment](length, length)
-    for (x <- 0 until length;
-         y <- 0 until length if y < x)
+
+    for (x <- 0 until n;
+         y <- 0 until n if y < x)
     {
-      myMatrix(x)(y) = computeBisector(factory.createPoint(coordinates(x)),factory.createPoint(coordinates(y)), env);
+      segmentMatrix(x)(y) = computeBisector(factory.createPoint(coordinates(x)),factory.createPoint(coordinates(y)), env)
     }
-    ??? 
+    segmentMatrix
   }
 
   def computeBisector(p1 : Point, p2 : Point, env : Envelope) : LineSegment = {
@@ -54,23 +59,37 @@ object Naive {
 
 
   def computePolygon(p : Point, b : LineSegment, env : Envelope) : Polygon = {
-    val mainPol = new Polygon(envelopeToLinearRing(env), Array[LinearRing](), factory)
-    val pol1 = {
-      if (b.p0.y < env.getMinY) {
-        new Polygon(
-          new LinearRing(
-            new CoordinateArraySequence(
-              Array(b.p0, new Coordinate(env.getMaxX, env.getMinY, 0), b.p1)),
-            factory),
-          Array[LinearRing](), factory)
-      } else if (b.p1.y < env.getMinY) {
 
-      } else {
+    val mainPol = factory.createPolygon(env)
+    val lines = factory.createGeometryCollection(Array(env, b.toGeometry(factory))).union()
 
-      }
-    }
+    val polygonizer = new Polygonizer()
+    polygonizer.add(lines)
+    val polygons =  polygonizer.getPolygons().asInstanceOf[(Collection[Polygon])]
+
+    val p = (for (polygon <- polygons if(polygon.contains(p))) yield polygon).head
+
+    p
+
   }
 
+  def computeVoronoiCell(p: Int) = {
+    val polygons = Array[Geometry]()
+    val coordinates = points.getCoordinates
+    val point = factory.createPoint(coordinates(p))
+
+    for (x <- 0 until n if p != x) {
+      val other = factory.createPoint(coordinates(x))
+      val bisector = computeBisector(point, other, envelope)
+      polygons :+ computePolygon(point, bisector, envelope)
+    }
+    val collection = factory.createGeometryCollection(polygons)
+    collection.union()
+  }
+
+  def run() = {
+    ???
+  }
 
 
 }
