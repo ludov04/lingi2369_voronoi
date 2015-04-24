@@ -29,9 +29,15 @@ object Naive {
 
 
 
-  def segmentMatrix(points: MultiPoint) = {
+  def segmentMatrix(points: MultiPoint, env : Envelope) = {
     val coordinates = points.getCoordinates
-    //for (x <- 0 to coordinates.length; y <- points.getCoo)
+    val length = coordinates.length
+    var matrix = ofDim[LineSegment](length, length)
+    for (x <- 0 until length;
+         y <- 0 until length if y < x)
+    {
+      myMatrix(x)(y) = computeBisector(factory.createPoint(coordinates(x)),factory.createPoint(coordinates(y)), env);
+    }
     ??? 
   }
 
@@ -45,6 +51,7 @@ object Naive {
       new LineSegment(env.getMinX, (a*env.getMinX)+b, env.getMaxX, (a*env.getMaxX)+b)
     }
   }
+
 
   def computePolygon(p : Point, b : LineSegment, env : Envelope) : Polygon = {
     val mainPol = new Polygon(envelopeToLinearRing(env), Array[LinearRing](), factory)
@@ -63,6 +70,7 @@ object Naive {
       }
     }
   }
+
 
 
 }
