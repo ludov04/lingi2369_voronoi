@@ -25,11 +25,12 @@ class Naive(points: MultiPoint) {
       new Coordinate(env.getMinX, env.getMaxY, 0),
       new Coordinate(env.getMaxX, env.getMaxY, 0),
       new Coordinate(env.getMaxX, env.getMinY, 0),
-      new Coordinate(env.getMaxX, env.getMinY, 0)
+      new Coordinate(env.getMaxX, env.getMinY, 0),
+      new Coordinate(env.getMinX, env.getMaxY, 0) // must be closed (closed mean last point is equal to first)
     )
-    val coordinatesSeq : CoordinateArraySequence = new CoordinateArraySequence(coordinatesArray)
 
-    new LinearRing(coordinatesSeq, factory)
+
+    factory.createLinearRing(coordinatesArray)
   }
 
 
@@ -88,7 +89,7 @@ class Naive(points: MultiPoint) {
   }
 
   def run() = {
-    ???
+    for
   }
 
 
