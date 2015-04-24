@@ -2,10 +2,38 @@
  * Created by ludov on 24/04/15.
  */
 
+import com.vividsolutions.jts.geom.impl.CoordinateArraySequence
 import com.vividsolutions.jts.geom._
+import language.implicitConversions
+import Array._
+
 
 object Naive {
 
+  val factory = new GeometryFactory()
+
+  var myMatrix = ofDim[LineSegment](3,3)
+
+
+  implicit def envelopeToLineString(env : Envelope) : LineString = {
+    val coordinatesArray = Array(
+      new Coordinate(env.getMinX, env.getMaxY, 0),
+      new Coordinate(env.getMaxX, env.getMaxY, 0),
+      new Coordinate(env.getMaxX, env.getMinY, 0),
+      new Coordinate(env.getMaxX, env.getMinY, 0)
+    )
+    val coordinatesSeq : CoordinateArraySequence = new CoordinateArraySequence(coordinatesArray)
+
+    new LineString(coordinatesSeq, factory)
+  }
+
+
+
+  def segmentMatrix(points: MultiPoint) = {
+    val coordinates = points.getCoordinates
+    //for (x <- 0 to coordinates.length; y <- points.getCoo)
+    ??? 
+  }
 
   def computeBisector(p1 : Point, p2 : Point, env : Envelope) = {
     if (p2.getY - p1.getY == 0){
