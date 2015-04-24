@@ -1,3 +1,12 @@
+.idea/scopes/
+.idea/dictionaries/
+.idea/inspectionProfiles/
+.idea/libraries/
+.idea/modules/
+.idea/.name
+.idea/*.xml
+!.idea/vcs.xml
+!.idea/uiDesigner.xml
 /classes
 /dist
 /out
@@ -12,3 +21,4 @@ build
 target/
 
 testdata/debugger
+uiDesigner.xml
