@@ -2,17 +2,16 @@
  * Created by ludov on 24/04/15.
  */
 
-import java.util
 import java.util.Collection
 
-import com.vividsolutions.jts.geom.impl.CoordinateArraySequence
 import com.vividsolutions.jts.geom._
 import com.vividsolutions.jts.io.WKTReader
 import com.vividsolutions.jts.operation.polygonize.Polygonizer
-import language.implicitConversions
-import Array._
+
+import scala.Array._
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ArrayBuffer
+import scala.language.implicitConversions
 
 
 class Naive(points: Geometry) {
@@ -35,8 +34,6 @@ class Naive(points: Geometry) {
 
     factory.createLinearRing(coordinatesArray)
   }
-
-
 
 
   def computeSegmentMatrix(env : Envelope) = {
@@ -67,13 +64,13 @@ class Naive(points: Geometry) {
     val mainPol = factory.createPolygon(env)
     val coll = factory.createGeometryCollection(Array(env, b.toGeometry(factory)))
     val lines = coll.union()
-    
+
     val polygonizer = new Polygonizer()
     polygonizer.add(lines)
     val polygons =  polygonizer.getPolygons.asInstanceOf[(Collection[Polygon])]
 
-    val x = (for (polygon <- polygons if polygon.contains(p)) yield polygon).head
-    x
+    (for (polygon <- polygons if polygon.contains(p)) yield polygon).head
+
 
   }
 
