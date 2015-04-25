@@ -17,15 +17,11 @@ import javax.swing.JPanel
 
 import com.vividsolutions.jts.geom.GeometryCollection
 
-class Drawer extends JComponent {
-  var content = GeometryCollection
-
-  def Drawer (content : GeometryCollection): Unit ={
-    this.content = content
-  }
+class Drawer(val content: GeometryCollection) extends JComponent {
 
   override def paintComponent(g: Graphics) {
     super.paintComponent(g)
+    content
     for(i <- 0 until content.getNumGeometries){
 
     }
