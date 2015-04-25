@@ -21,7 +21,6 @@ class Drawer(val content: GeometryCollection) extends JComponent {
 
   override def paintComponent(g: Graphics) {
     super.paintComponent(g)
-    content
     for(i <- 0 until content.getNumGeometries){
 
     }
