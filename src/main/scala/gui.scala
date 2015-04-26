@@ -3,19 +3,14 @@
  */
 
 import java.awt.BorderLayout
-import java.awt.Color
 import java.awt.Dimension
-import java.awt.Graphics
 import java.awt.event.{MouseEvent, MouseListener, ActionEvent, ActionListener}
-import java.util.LinkedList
 
 import javax.swing.JButton
-import javax.swing.JComponent
 import javax.swing.JFrame
 import javax.swing.JPanel
 
 import com.vividsolutions.jts.geom._
-import com.vividsolutions.jts.io.WKTReader
 
 import scala.collection.mutable.ArrayBuffer
 
