@@ -15,7 +15,7 @@ import javax.swing.JComponent
 import javax.swing.JFrame
 import javax.swing.JPanel
 
-import com.vividsolutions.jts.geom.GeometryCollection
+import com.vividsolutions.jts.geom.{Polygon, GeometryCollection}
 
 class Drawer(var content: GeometryCollection) extends JComponent {
 
@@ -29,6 +29,16 @@ class Drawer(var content: GeometryCollection) extends JComponent {
           for(j <- 0 until coords.length){
             if(j == coords.length-1) g.drawLine(coords(j).x.toInt, coords(j).y.toInt, coords(0).x.toInt, coords(0).y.toInt)
             else g.drawLine(coords(j).x.toInt, coords(j).y.toInt, coords(j+1).x.toInt, coords(j+1).y.toInt)
+          }
+        }
+        case "Point" => {
+          g.drawLine(currGeometry.getCoordinate.x.toInt, currGeometry.getCoordinate.y.toInt, currGeometry.getCoordinate.x.toInt, currGeometry.getCoordinate.y.toInt)
+        }
+        case "MultiPoint" => {
+          val coords = currGeometry.getCoordinates
+          println(coords(0).x.toInt)
+          for(j <- 0 until coords.length){
+            g.fillOval(coords(j).x.toInt-2, coords(j).y.toInt-2, 4, 4)
           }
         }
       }
