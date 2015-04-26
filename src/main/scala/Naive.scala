@@ -53,8 +53,6 @@ class Naive(points: Geometry) {
   def computeBisector(p1 : Point, p2 : Point, env : Envelope) : LineSegment = {
     if (p2.getY == p1.getY){
       val b = (p1.getX + p2.getX)/2
-
-      println(b)
       new LineSegment(b, env.getMinY, b, env.getMaxY)
     } else {
       val a = (p1.getX - p2.getX) / (p2.getY - p1.getY)
