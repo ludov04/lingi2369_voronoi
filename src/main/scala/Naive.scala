@@ -98,7 +98,7 @@ class Naive(points: Geometry) {
     for( i <- 0 until n) {
       cells += computeVoronoiCell(i)
     }
-    cells += points
+    //cells += points //Not necessary since Points and Polygons are separated
     val diagram = factory.createGeometryCollection(cells.toArray)
     diagram
   }
