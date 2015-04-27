@@ -35,7 +35,7 @@ case class Branch[+A <% Ordered[A], B <% A](value: Right[A, B],
   def isLeaf = false
 }
 
-case class Leaf[+A <% Ordered[A], B <% A](value: Left[A, B],
+/*case class Leaf[+A <% Ordered[A], B <% A](value: Left[A, B],
                                           parent: Option[ArcTree[A, B]] ) extends ArcTree[A, B] {
 
   def left: ArcTree[Nothing, Nothing] = throw new NoSuchElementException("An empty tree.")
@@ -45,4 +45,4 @@ case class Leaf[+A <% Ordered[A], B <% A](value: Left[A, B],
   def isEmpty = false
 
   def isLeaf = false
-}
+}*/
