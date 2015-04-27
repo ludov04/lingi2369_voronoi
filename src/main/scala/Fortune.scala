@@ -7,10 +7,6 @@ import scalacaster.Tree._
  * Created by ludov on 27/04/15.
  */
 
-class Arc(site: Coordinate, pred: Option[Arc], next: Option[Arc], event: Option[CircleEvent]) {
-
-}
-
 trait Event
 
 class CircleEvent extends Event
