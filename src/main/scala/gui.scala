@@ -6,9 +6,7 @@ import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.event.{MouseEvent, MouseListener, ActionEvent, ActionListener}
 
-import javax.swing.JButton
-import javax.swing.JFrame
-import javax.swing.JPanel
+import javax.swing.{BorderFactory, JButton, JFrame, JPanel}
 
 import com.vividsolutions.jts.geom._
 import sun.nio.cs.Surrogate.Generator
@@ -26,6 +24,7 @@ class Gui(val content : Drawer) {
     val frame = new JFrame()
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
     content.setPreferredSize(new Dimension(x, y))
+    content.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
     frame.getContentPane.add(content, BorderLayout.CENTER)
 
     val buttons = new JPanel()
