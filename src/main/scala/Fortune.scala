@@ -1,4 +1,4 @@
-import com.vividsolutions.jts.geom.Point
+import com.vividsolutions.jts.geom.{Coordinate, Point}
 
 import scala.collection.mutable
 
@@ -6,8 +6,8 @@ import scala.collection.mutable
  * Created by ludov on 27/04/15.
  */
 
-class Arc {
-  ???
+class Arc(p: Coordinate) {
+
 }
 
 trait Event
@@ -23,6 +23,8 @@ class Fortune {
 
   def handleCircleEvent(a : Arc) = ???
 
-  def handleSiteEvent(p: Point) = ???
+  def handleSiteEvent(p: Coordinate) = ???
+
+  def checkCircleEvent(a : Arc) = ???
 
 }
