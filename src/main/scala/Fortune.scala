@@ -23,7 +23,7 @@ class Fortune {
   val tree = Tree.empty[Arc]
 
   def handleCircleEvent(a : Arc) = {
-    val l = tree.
+
   }
 
   def handleSiteEvent(p: Coordinate) = {
