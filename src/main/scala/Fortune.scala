@@ -7,7 +7,7 @@ import scalacaster.Tree._
  * Created by ludov on 27/04/15.
  */
 
-class Arc(site: Coordinate, pred: Option[Arc], next: Option[Arc]) {
+class Arc(site: Coordinate, pred: Option[Arc], next: Option[Arc], event: Option[CircleEvent]) {
 
 }
 
@@ -28,7 +28,11 @@ class Fortune {
 
   def handleSiteEvent(p: Coordinate) = {
     if (tree.isEmpty) {
-      tree.add(new Arc(p))
+      tree.add(new Arc(p, None, None, None))
+    }
+    else {
+      val above : Arc = ??? // the arc vertically above p
+
     }
   }
 
