@@ -21,7 +21,9 @@ class Fortune {
   val edgeList : DCEL = new DCEL()
   val tree = new mutable.TreeSet[Arc]()
 
-  def handleCircleEvent(a : Arc) = ???
+  def handleCircleEvent(a : Arc) = {
+    val l = tree.
+  }
 
   def handleSiteEvent(p: Coordinate) = ???
 
