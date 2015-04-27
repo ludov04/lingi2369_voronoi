@@ -7,7 +7,7 @@ import scalacaster.Tree._
  * Created by ludov on 27/04/15.
  */
 
-class Arc(site: Coordinate) {
+class Arc(site: Coordinate, pred: Option[Arc], next: Option[Arc]) {
 
 }
 
