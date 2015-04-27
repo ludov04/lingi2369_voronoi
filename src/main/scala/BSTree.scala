@@ -1,6 +1,15 @@
+import com.vividsolutions.jts.geom.Coordinate
+
 /**
  * Created by Fabian on 27-04-15.
  */
+
+
+sealed trait ArcNode
+
+case class Arc(site: Coordinate, pred: Option[Arc], next: Option[Arc], event: Option[CircleEvent]) extends ArcNode
+case class SiteTuple(sites: (Coordinate, Coordinate)) extends ArcNode
+
 sealed trait BSTree[+T] {
   def toList: List[T]
 }
