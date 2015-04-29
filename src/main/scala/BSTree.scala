@@ -14,7 +14,7 @@ case class Arc(site: Coordinate, var pred: Option[Arc], var next: Option[Arc], v
 case class SiteTuple(var sites: (Coordinate, Coordinate), var edge: HalfEdge) extends ArcNode
 
 
-class NodeOrdering(y : Int) extends Ordering[ArcNode] {
+class NodeOrdering(y : Double) extends Ordering[ArcNode] {
 
   implicit def breakPoint(sites : (Coordinate, Coordinate)): Coordinate = {
     val a = (1/(sites._1.y-y))-(1/(sites._2.y-y))

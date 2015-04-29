@@ -1,8 +1,10 @@
 
 import com.vividsolutions.jts.geom._
 
-import structure.{IDCEL, DCEL}
+import structure.DCEL
 import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
+
 /**
  * Created by ludov on 27/04/15.
  */
@@ -30,7 +32,7 @@ class Fortune {
       val event = q.dequeue()
       event match {
         case e : SiteEvent => handleSiteEvent(e.site)
-        case e : CircleEvent => handleCircleEvent(Tree.search(e.a,tree), e.y)
+        case e : CircleEvent => handleCircleEvent(Tree.search(e.a,tree)(new NodeOrdering(e.y)), e.y)
       }
     }
     val multipoint = factory.createMultiPoint(points)
@@ -50,8 +52,19 @@ class Fortune {
   }
 
   def getPolygons : List[Polygon] = {
-    edgeList.faces
-    ???
+    val polygons = edgeList.faces.map { face =>
+      val start = face.edge.origin
+      var edge = face.edge.next
+      val points = ArrayBuffer[Coordinate](start.point)
+      while (start != edge.origin) {
+        points += edge.origin.point
+        edge = edge.next
+      }
+
+      factory.createPolygon(points.toArray)
+    }
+    polygons.toList
+
   }
 
   def handleCircleEvent(l : Leaf, sweepY: Double) = {
@@ -103,7 +116,7 @@ class Fortune {
             Tree.removeArcNode(l, newEdge)
 
             q = q.filter {
-              case CircleEvent(b) => b.site == pred.site || (b.site == next.site)
+              case CircleEvent(b, _) => b.site == pred.site || (b.site == next.site)
               case _ => true
             }
 
@@ -127,7 +140,7 @@ class Fortune {
       //Create Half-Edges
       val (h1, h2) = edgeList.createEdge
 
-      val old = Tree.addParabola(newArc, h1, tree) // create and add the subtree, link the half-edge with internal nodes, link newArc with pred/next
+      val old = Tree.addParabola(newArc, h1, tree)(new NodeOrdering(p.y)) // create and add the subtree, link the half-edge with internal nodes, link newArc with pred/next
       old.value.event.foreach(toRemove => q = q.filterNot(event => toRemove == event)) // remove false alarm
 
       newArc.pred.foreach(checkCircleEvent(_, p.y)) //Check the triple of consecutive arcs where the new arc is the right arc
@@ -139,7 +152,6 @@ class Fortune {
     //check if there is a triple
     //if computeCenter return None, it means that there is no triple
     computeCenter(a).foreach { center =>
-      center
       val p = a.site
       val r = Math.sqrt(Math.pow(center.x - p.x, 2) + Math.pow(center.y - p.y, 2))
 
