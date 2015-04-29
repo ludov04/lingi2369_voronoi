@@ -1,5 +1,5 @@
 import com.vividsolutions.jts.geom.Coordinate
-import structure.DCEL
+import structure.DCEL._
 
 /**
  * Created by Fabian on 27-04-15.
@@ -9,7 +9,9 @@ import structure.DCEL
 sealed trait ArcNode
 
 case class Arc(site: Coordinate, var pred: Option[Arc], var next: Option[Arc], var event: Option[CircleEvent]) extends ArcNode
-case class SiteTuple(var sites: (Coordinate, Coordinate), var edge: DCEL.HalfEdge) extends ArcNode
+
+case class SiteTuple(var sites: (Coordinate, Coordinate), var edge: HalfEdge) extends ArcNode
+
 
 class NodeOrdering(y : Int) extends Ordering[ArcNode] {
 
@@ -79,7 +81,7 @@ case class Node(var left: BSTree, value: SiteTuple, var right: BSTree, var paren
 
 object Tree {
 
-  def removeArcNode(x: Leaf, edge: DCEL.HalfEdge): BSTree ={
+  def removeArcNode(x: Leaf, edge: HalfEdge): BSTree ={
     x match {
       case Leaf(value, parent) if parent == null => {
         val emptyT = new EmptyT()
@@ -173,7 +175,7 @@ object Tree {
    * @param tree
    * @return the leaf that were replaced
    */
-  def addParabola(a : Arc, tree: BSTree)(implicit o : NodeOrdering) : Leaf = {
+  def addParabola(a : Arc, h: HalfEdge, tree: BSTree)(implicit o : NodeOrdering) : Leaf = {
     val node = search(a.site, tree)
 
     val leftArc = node.value.copy(next = Some(a))
@@ -186,11 +188,13 @@ object Tree {
     val newLeaf = Leaf(a, null)
     val rightLeaf = Leaf(rightArc, null)
 
-    val sub = Node(leaftLeaf, SiteTuple((leftArc.site, a.site)), newLeaf, null )
+    val sub = Node(leaftLeaf, SiteTuple((leftArc.site, a.site), h), newLeaf, null )
     leaftLeaf.parent = sub
     newLeaf.parent = sub
 
-    val newTree = Node(sub, SiteTuple((a.site, rightArc.site)), rightLeaf, node.parent)
+    val newTree = Node(sub, SiteTuple((a.site, rightArc.site), h), rightLeaf, node.parent)
+    sub.parent = newTree
+    rightLeaf.parent = newTree
 
     replaceNode(node, newTree, tree)
     node
