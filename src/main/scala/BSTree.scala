@@ -13,8 +13,19 @@ case class SiteTuple(var sites: (Coordinate, Coordinate)) extends ArcNode
 class NodeOrdening(y : Int) extends Ordering[ArcNode] {
 
   implicit def breakPoint(sites : (Coordinate, Coordinate)): Coordinate = {
-    // Calculer l'intersection entre la parabole formée par le point a et la droite y, et la parabole formée par le point b et la droite y
-    ???
+    val a = (1/(sites._1.y-y))-(1/(sites._2.y-y))
+    val b = (-2*sites._1.x/(sites._1.y-y))+(2*sites._2.x/(sites._2.y-y))
+    val c = sites._1.y-sites._2.y
+    val delta = Math.pow(b, 2) - (4*a*c)
+    val s1 = (-b-Math.sqrt(delta))/(2*a)
+    val s2 = (-b+Math.sqrt(delta))/(2*a)
+    if(sites._1.y > sites._2.y){
+      val sy = Math.pow(s1-sites._1.x, 2)/(2*(sites._1.y-y))+((sites._1.y+sites._2.y)/2)
+      new Coordinate(s1, sy)
+    } else {
+      val sy = Math.pow(s2-sites._1.x, 2)/(2*(sites._1.y-y))+((sites._1.y+sites._2.y)/2)
+      new Coordinate(s2, sy)
+    }
   }
   def compare(a: ArcNode, b : ArcNode): Int = {
     a match {
