@@ -17,6 +17,12 @@ class Fortune {
   import edgeList._
   var tree : BSTree = EmptyT()
 
+  def run(points: Array[Coordinate]): Unit ={
+    for(i <- 0 until points.length){
+      
+    }
+  }
+
   def handleCircleEvent(l : Leaf) = {
     val a = l.value
     val center = computeCenter(a)
