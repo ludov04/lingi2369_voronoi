@@ -32,7 +32,7 @@ class NodeOrdening(y : Int) extends Ordering[ArcNode] {
 
 sealed trait BSTree {
   def value : ArcNode
-  def parent : BSTree
+  def parent : Node
   def toList: List[ArcNode]
   def getLeftMost : Leaf
   def getRightMost : Leaf
@@ -111,31 +111,34 @@ object Tree {
     }
   }
 
-  def findLeft(x: Node): Node = {
-    x match {
-      case Node(leftN, valueN, rightN, parentN) if parentN != null && parentN.left == x => {
-        findLeft(parentN)
+  def findLeft(x: BSTree): Node = {
+    val parent = x.parent
+    if (parent != null) {
+      if(parent.left == x) {
+        findLeft(parent)
       }
-      case Node(leftN, valueN, rightN, parentN) if parentN != null && parentN.right == x => {
-        parentN
+      else if (parent.right == x) {
+        parent
       }
-      case Node(leftN, valueN, rightN, parentN) => {
-        null
-      }
+      else null
+    } else {
+      null
     }
+
   }
 
-  def findRight(x: Node): Node = {
-    x match {
-      case Node(leftN, valueN, rightN, parentN) if parentN != null && parentN.left == x => {
-        parentN
+  def findRight(x: BSTree): Node = {
+    val parent = x.parent
+    if (parent != null) {
+      if(parent.left == x) {
+        parent
       }
-      case Node(leftN, valueN, rightN, parentN) if parentN != null && parentN.right == x => {
-        findRight(parentN)
+      else if (parent.right == x) {
+        findRight(parent)
       }
-      case Node(leftN, valueN, rightN, parentN) => {
-        null
-      }
+      else null
+    } else {
+      null
     }
   }
 
@@ -187,8 +190,20 @@ object Tree {
 
 
     //Update the tuples
+    val rightParent = findRight(oldNode)
+    val rightIntersection = rightParent.value.sites
+    val leftParent = findLeft(oldNode)
+    val leftIntersection = leftParent.value.sites
+    rightParent.value.sites = ( right.value.site , rightIntersection._2)
+    leftParent.value.sites = (leftIntersection._1, left.value.site)
 
+    //replace the node
+    oldNode match {
+      case oldNode.parent.left => oldNode.parent.left = newNode
+      case oldNode.parent.right => oldNode.parent.right = newNode
+    }
 
+    tree
 
   }
 
