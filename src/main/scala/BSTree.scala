@@ -7,7 +7,7 @@ import com.vividsolutions.jts.geom.Coordinate
 
 sealed trait ArcNode
 
-case class Arc(site: Coordinate, pred: Option[Arc], next: Option[Arc], event: Option[CircleEvent]) extends ArcNode
+case class Arc(site: Coordinate, var pred: Option[Arc], var next: Option[Arc], var event: Option[CircleEvent]) extends ArcNode
 case class SiteTuple(sites: (Coordinate, Coordinate)) extends ArcNode
 
 class NodeOrdening(y : Int) extends Ordering[ArcNode] {
@@ -33,19 +33,30 @@ class NodeOrdening(y : Int) extends Ordering[ArcNode] {
 sealed trait BSTree {
   def parent : BSTree
   def toList: List[ArcNode]
+  def getLeftMost : Leaf
+  def getRightMost : Leaf
 }
 
 case class EmptyT() extends BSTree {
   def parent = null
   def toList = Nil
+  def getLeftMost = null
+  def getRightMost = null
 }
 
 case class Leaf(value: Arc, var parent: Node) extends BSTree {
   def toList = Nil
+  def getLeftMost = this
+  def getRightMost = this
 }
 
 case class Node(var left: BSTree, value: SiteTuple, var right: BSTree, var parent: Node) extends BSTree {
   def toList = left.toList ::: value :: right.toList
+
+  def getLeftMost = left.getLeftMost
+
+  def getRightMost = right.getRightMost
+
 }
 
 object Tree {
@@ -116,7 +127,7 @@ object Tree {
         parentN
       }
       case Node(leftN, valueN, rightN, parentN) if parentN != null && parentN.right == x => {
-        findLeft(parentN)
+        findRight(parentN)
       }
       case Node(leftN, valueN, rightN, parentN) => {
         null
@@ -157,6 +168,26 @@ object Tree {
     }
   }
 
+
+  def replaceNode(oldNode: Leaf, newNode: Node, tree: BSTree) : BSTree = {
+    val left = newNode.getLeftMost
+    val right = newNode.getRightMost
+    val pred = oldNode.value.pred
+    val next = oldNode.value.next
+
+    //Update Links
+    left.value.pred = pred
+    right.value.next = next
+    pred.foreach(_.next = Some(left.value))
+    next.foreach(_.pred = Some(right.value))
+
+
+    //Update the tuples
+
+
+
+  }
+
   def insertNode(x: SiteTuple, tree: BSTree)(implicit o : Ordering[ArcNode]): BSTree = {
     import o._
     //TODO
@@ -168,7 +199,7 @@ object Tree {
     }
   }
 
-  def search(x: ArcNode, tree: BSTree)(implicit o : Ordering[ArcNode]): Boolean = {
+  def search(x: Arc, tree: BSTree)(implicit o : Ordering[ArcNode]): Leaf = {
     import o._
     tree match {
       case Leaf => false
