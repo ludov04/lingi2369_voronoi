@@ -125,7 +125,7 @@ object Tree {
         parentN
       }
       case Node(leftN, valueN, rightN, parentN) if parentN != null && parentN.right == x => {
-        findLeft(parentN)
+        findRight(parentN)
       }
       case Node(leftN, valueN, rightN, parentN) => {
         null
