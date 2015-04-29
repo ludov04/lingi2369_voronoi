@@ -34,12 +34,13 @@ class Fortune {
   }
 
   def handleSiteEvent(p: Coordinate) = {
+    val newArc = new Arc(p, None, None, None)
     if (tree.isEmpty) {
-      Tree.insert(new Arc(p, None, None, None), tree)
+      Tree.insert(newArc, tree)
     }
     else {
-      val above : Leaf = Tree.search(p, tree) // the leaf containing the arc vertically above p
-
+      val old = Tree.addParabola(newArc, tree) // the leaf containing the arc vertically above p
+      old.value.event.foreach(toRemove => q = q.filterNot(event => toRemove == event)) // remove false alarm
     }
   }
 

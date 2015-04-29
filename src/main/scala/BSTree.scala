@@ -9,7 +9,7 @@ import structure.DCEL
 sealed trait ArcNode
 
 case class Arc(site: Coordinate, var pred: Option[Arc], var next: Option[Arc], var event: Option[CircleEvent]) extends ArcNode
-case class SiteTuple(var sites: (Coordinate, Coordinate), edge: DCEL.HalfEdge = None) extends ArcNode
+case class SiteTuple(var sites: (Coordinate, Coordinate), edge: Option[DCEL.HalfEdge] = None) extends ArcNode
 
 class NodeOrdering(y : Int) extends Ordering[ArcNode] {
 
@@ -159,7 +159,7 @@ object Tree {
     }
   }
 
-  def insertLeaf(x: Arc, tree: BSTree)(implicit o : Ordering[ArcNode]) : BSTree = {
+  def insertLeaf(x: Arc, tree: Leaf)(implicit o : Ordering[ArcNode]) : BSTree = {
     import o._
     val newLeaf = Leaf(x, null)
     tree match {
@@ -173,9 +173,7 @@ object Tree {
         newLeaf.parent = node
         node
       }
-      case EmptyT() => {
-        newLeaf
-      }
+
     }
   }
 
@@ -189,9 +187,40 @@ object Tree {
       case Node(left, value, right, parent) => {
         Node(left, value, insert(x, right), parent)
       }
+      case EmptyT() => {
+        Leaf(x, null)
+      }
     }
   }
 
+  /**
+   *
+   * @param a
+   * @param tree
+   * @return the leaf that were replaced
+   */
+  def addParabola(a : Arc, tree: BSTree) : Leaf = {
+    val node = Tree.search(a.site, tree)
+
+    val leftArc = node.value.copy(next = Some(a))
+    val rightArc = node.value.copy(pred = Some(a))
+    //update links
+    a.pred = Some(leftArc)
+    a.next = Some(rightArc)
+
+    val leaftLeaf = Leaf(leftArc, null)
+    val newLeaf = Leaf(a, null)
+    val rightLeaf = Leaf(rightArc, null)
+
+    val sub = Node(leaftLeaf, SiteTuple((leftArc.site, a.site)), newLeaf, null )
+    leaftLeaf.parent = sub
+    newLeaf.parent = sub
+
+    val newTree = Node(sub, SiteTuple((a.site, rightArc.site)), rightLeaf, node.parent)
+
+    replaceNode(node, newTree, tree)
+    node
+  }
 
   def replaceNode(oldNode: Leaf, newNode: Node, tree: BSTree) : BSTree = {
     val left = newNode.getLeftMost
