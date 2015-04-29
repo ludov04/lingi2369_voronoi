@@ -31,12 +31,12 @@ class NodeOrdering(y : Int) extends Ordering[ArcNode] {
   def compare(a: ArcNode, b : ArcNode): Int = {
     a match {
       case SiteTuple(aSites, _) => b match {
-          case SiteTuple(bSites, edge) => aSites.x.compareTo(bSites.x)
-          case Arc(site) => aSites.x.compareTo(site.x)
+          case SiteTuple(bSites, _) => aSites.x.compareTo(bSites.x)
+          case Arc(site, _, _, _) => aSites.x.compareTo(site.x)
         }
       case Arc(site, _, _, _) => b match {
-          case SiteTuple(bSites) => site.x.compareTo(bSites.x)
-          case Arc(p) => site.x.compareTo(p.x)
+          case SiteTuple(bSites, _) => site.x.compareTo(bSites.x)
+          case Arc(p, _, _, _) => site.x.compareTo(p.x)
         }
     }
   }
@@ -86,6 +86,11 @@ object Tree {
         emptyT
       }
       case Leaf(valueL, parentL) => {
+        val predTmp = valueL.pred
+        val nextTmp = valueL.next
+        if(predTmp.isDefined) valueL.pred = nextTmp
+        if(nextTmp.isDefined) valueL.next = predTmp
+
         parentL match {
           case Node(leftN, valueN, rightN, parentN) if leftN == x => {
             if(parentN == null) rightN
@@ -199,8 +204,8 @@ object Tree {
    * @param tree
    * @return the leaf that were replaced
    */
-  def addParabola(a : Arc, tree: BSTree) : Leaf = {
-    val node = Tree.search(a.site, tree)
+  def addParabola(a : Arc, tree: BSTree)(implicit o : NodeOrdering) : Leaf = {
+    val node = search(a.site, tree)
 
     val leftArc = node.value.copy(next = Some(a))
     val rightArc = node.value.copy(pred = Some(a))
@@ -244,10 +249,9 @@ object Tree {
     leftParent.value.sites = (leftIntersection._1, left.value.site)
 
     //replace the node
-    oldNode match {
-      case oldNode.parent.left => oldNode.parent.left = newNode
-      case oldNode.parent.right => oldNode.parent.right = newNode
-    }
+    if(oldNode.parent == null) return newNode
+    else if(oldNode.parent.left == oldNode) oldNode.parent.left = newNode
+    else if(oldNode.parent.right == oldNode) oldNode.parent.right = newNode
 
     tree
 
@@ -258,9 +262,9 @@ object Tree {
     import o._
     tree match {
       case v: Leaf => v
-      case Node(left, value, right) if x.x < value.sites.x => search(x, left)
-      case Node(left, value, right) if x.x >= value.sites.x => search(x, right)
-      case _ : EmptyT => throw new UnsupportedOperationException
+      case Node(left, value, right, parent) if x.x < value.sites.x => search(x, left)
+      case Node(left, value, right, parent) if x.x >= value.sites.x => search(x, right)
+      case _: EmptyT => throw new UnsupportedOperationException
     }
   }
 
