@@ -1,5 +1,6 @@
 import com.vividsolutions.jts.geom.{Coordinate, Point}
 import structure.DCEL
+import structure.DCEL._
 
 import scala.collection.mutable
 /**
@@ -19,17 +20,44 @@ class Fortune {
 
   def handleCircleEvent(l : Leaf) = {
     val a = l.value
-    a match {
-      case Arc(site, Some(pred), Some(next), event) =>
-        Tree.removeArcNode(l)
+    val center = computeCenter(a)
+    center match {
+      case Some(c) => {
+        //Handle half edges
+        val rightEdge = {
+          if (l.parent.left == l) {
+            l.parent.value.edge
+          } else {
+            Tree.findRight(l.parent).value.edge
+          }
+        }
+        val leftEdge = {
+          if (l.parent.right == l) {
+            l.parent.value.edge
+          } else {
+            Tree.findRight(l.parent).value.edge
+          }
+        }
+        val newEdgeTwin = HalfEdge(null, null, null, null, null)
+        val newEdge = HalfEdge(null, null, null, null, null)
+        val vertex = Vertex(c, newEdge)
+        newEdge.origin = vertex
+        
 
-        q = q.filter {
-          case CircleEvent(b) => b.site == pred.site || (b.site == next.site)
-          case _ => true
+        //Handle suppression in the tree
+        a match {
+          case Arc(site, Some(pred), Some(next), event) =>
+            Tree.removeArcNode(l, newEdge)
+
+            q = q.filter {
+              case CircleEvent(b) => b.site == pred.site || (b.site == next.site)
+              case _ => true
+            }
+
+
         }
 
-        val center = computeCenter(a)
-
+      }
     }
   }
 

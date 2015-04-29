@@ -9,7 +9,7 @@ import structure.DCEL
 sealed trait ArcNode
 
 case class Arc(site: Coordinate, var pred: Option[Arc], var next: Option[Arc], var event: Option[CircleEvent]) extends ArcNode
-case class SiteTuple(var sites: (Coordinate, Coordinate), edge: Option[DCEL.HalfEdge] = None) extends ArcNode
+case class SiteTuple(var sites: (Coordinate, Coordinate), var edge: DCEL.HalfEdge) extends ArcNode
 
 class NodeOrdering(y : Int) extends Ordering[ArcNode] {
 
@@ -79,7 +79,7 @@ case class Node(var left: BSTree, value: SiteTuple, var right: BSTree, var paren
 
 object Tree {
 
-  def removeArcNode(x: Leaf): BSTree ={
+  def removeArcNode(x: Leaf, edge: DCEL.HalfEdge): BSTree ={
     x match {
       case Leaf(value, parent) if parent == null => {
         val emptyT = new EmptyT()
@@ -96,7 +96,10 @@ object Tree {
             if(parentN == null) rightN
             else {
               val leftBound = findLeft(parentN)
-              if(leftBound != null) leftBound.value.sites = (leftBound.value.sites._1, rightN.getLeftMost.value.site)
+              if(leftBound != null) {
+                leftBound.value.sites = (leftBound.value.sites._1, rightN.getLeftMost.value.site)
+                leftBound.value.edge = edge
+              }
               parentN match {
                 case Node(leftPN, valuePN, rightPN, parentPN) if leftPN == parentL => {
                   parentN.left = rightN
@@ -113,7 +116,7 @@ object Tree {
           case Node(leftN, valueN, rightN, parentN) => {
             if(parentN == null) leftN
             else {
-              val rightBound = findLeft(parentN)
+              val rightBound = findRight(parentN)
               if(rightBound != null) rightBound.value.sites = (rightBound.value.sites._1, leftN.getRightMost.value.site)
               parentN match {
                 case Node(leftPN, valuePN, rightPN, parentPN) if leftPN == parentL => {
@@ -161,40 +164,6 @@ object Tree {
       else null
     } else {
       null
-    }
-  }
-
-  def insertLeaf(x: Arc, tree: Leaf)(implicit o : Ordering[ArcNode]) : BSTree = {
-    import o._
-    val newLeaf = Leaf(x, null)
-    tree match {
-      case Leaf(value, parent) if x < value => {
-        val node = Node(newLeaf, SiteTuple((x.site, value.site)), tree, parent)
-        newLeaf.parent = node
-        node
-      }
-      case Leaf(value, parent) => {
-        val node = Node(tree, SiteTuple((value.site, x.site)), newLeaf, parent)
-        newLeaf.parent = node
-        node
-      }
-
-    }
-  }
-
-  def insert(x: Arc, tree: BSTree)(implicit o : Ordering[ArcNode]) : BSTree = {
-    import o._
-    tree match {
-      case t : Leaf => insertLeaf(x, t)
-      case Node(left, value, right, parent) if x < value => {
-        Node(insert(x, left), value, right, parent)
-      }
-      case Node(left, value, right, parent) => {
-        Node(left, value, insert(x, right), parent)
-      }
-      case EmptyT() => {
-        Leaf(x, null)
-      }
     }
   }
 
