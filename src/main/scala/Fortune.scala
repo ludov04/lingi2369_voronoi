@@ -27,20 +27,38 @@ class Fortune {
           if (l.parent.left == l) {
             l.parent.value.edge
           } else {
-            Tree.findRight(l.parent).value.edge
+            val tmp = Tree.findRight(l.parent).value.edge
+            if(tmp.origin == null) tmp
+            else tmp.twin
           }
         }
         val leftEdge = {
           if (l.parent.right == l) {
             l.parent.value.edge
           } else {
-            Tree.findRight(l.parent).value.edge
+            val tmp = Tree.findRight(l.parent).value.edge
+            if(tmp.origin == null) tmp
+            else tmp.twin
           }
         }
-        val newEdgeTwin = HalfEdge(null, null, null, null, null)
+        val centerEdge = HalfEdge(null, null, null, null, null)
         val newEdge = HalfEdge(null, null, null, null, null)
         val vertex = Vertex(c, newEdge)
+
         newEdge.origin = vertex
+        centerEdge.twin = newEdge
+        newEdge.twin = centerEdge
+
+        rightEdge.twin.origin = vertex
+        leftEdge.twin.origin = vertex
+
+        rightEdge.next = leftEdge.twin
+        leftEdge.next = centerEdge.twin
+        centerEdge.next = rightEdge.twin
+
+        leftEdge.twin.prev = rightEdge
+        centerEdge.twin.prev = leftEdge
+        rightEdge.twin.prev = centerEdge
 
 
         //Handle suppression in the tree
