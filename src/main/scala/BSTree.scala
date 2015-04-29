@@ -207,18 +207,8 @@ object Tree {
 
   }
 
-  def insertNode(x: SiteTuple, tree: BSTree)(implicit o : Ordering[ArcNode]): BSTree = {
-    import o._
-    //TODO
-    tree match {
-      case Node(left, value, right, parent) if x < value =>
-        Node(insert(x, left), value, right, parent)
-      case Node(left, value, right, parent) =>
-        Node(left, value, insert(x, right), parent)
-    }
-  }
 
-  def search(x: Arc, tree: BSTree)(implicit o : Ordering[ArcNode]): Leaf = {
+  def search(x: Coordinate, tree: BSTree)(implicit o : Ordering[ArcNode]): Leaf = {
     import o._
     tree match {
       case Leaf => false
@@ -228,10 +218,4 @@ object Tree {
     }
   }
 
-  def search(x: Arc, tree: BSTree)(implicit o : Ordering[ArcNode]): Leaf = {
-    import o._
-    ???
-  }
-
-  def tsort[T <% Ordered[T]](values: List[T]) = values.foldRight(Leaf: BSTree[T])(insert).toList
 }
