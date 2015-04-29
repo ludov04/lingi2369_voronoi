@@ -78,6 +78,17 @@ class Fortune {
 
   }
 
+  def createLinesFromEdges : MultiLineString = {
+    val lines = edgeList.edges.map { edge =>
+      val p1 = edge.origin.point
+      val p2 = edge.origin.point
+
+      factory.createLineString(Array(p1, p2))
+    }.toArray
+
+    factory.createMultiLineString(lines)
+  }
+
   def handleCircleEvent(l : Leaf, sweepY: Double) = {
     val a = l.value
     val center = computeCenter(a)
