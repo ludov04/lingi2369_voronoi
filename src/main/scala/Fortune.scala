@@ -118,7 +118,7 @@ class Fortune {
 
         val (centerEdge, newEdge) = edgeList.createEdge
         val vertex = Vertex(c, newEdge)
-        edgeList.vertices.add(vertex)
+        edgeList.vertices += vertex
 
         newEdge.origin = vertex
 

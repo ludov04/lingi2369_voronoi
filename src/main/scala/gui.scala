@@ -42,7 +42,7 @@ class Gui(val content : Drawer) {
     fortuneButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
         val fortune = new Fortune
-        content.refresh(fact.createGeometryCollection(fortune.run(points.toArray)))
+        content.refresh(fortune.run(points.toArray))
       }
     })
 
@@ -93,11 +93,11 @@ class Gui(val content : Drawer) {
 
 object GuiRun {
   def main(args: Array[String]): Unit = {
-    val rdr: WKTReader = new WKTReader
-    val points = rdr.read("MULTILINESTRING ((136 225, 185 335, 330 270), (150 180, 164 180, 176 180, 188 180, 202 180, 214 180, 224 180, 237 180, 249 180, 260 180))")
+    //val rdr: WKTReader = new WKTReader
+    //val points = rdr.read("MULTILINESTRING ((136 225, 185 335, 330 270), (150 180, 164 180, 176 180, 188 180, 202 180, 214 180, 224 180, 237 180, 249 180, 260 180))")
     //val naive = new Naive(points)
     val fact = new GeometryFactory()
-    val draw = new Drawer(Array[Coordinate](), fact.createGeometryCollection(Array[Geometry](points)))
+    val draw = new Drawer(Array[Coordinate](), fact.createGeometryCollection(Array[Geometry]()))
     val gui = new Gui(draw)
     gui.show
   }
