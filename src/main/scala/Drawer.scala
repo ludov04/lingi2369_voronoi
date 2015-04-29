@@ -40,6 +40,15 @@ class Drawer(var points : Array[Coordinate], var result: GeometryCollection) ext
             g.fillOval(coords(j).x.toInt - 2, coords(j).y.toInt - 2, 4, 4)
           }
         }
+        case "MultiLineString" => {
+          val lines = currGeometry.asInstanceOf[MultiLineString]
+          for(i <- 0 until lines.getNumGeometries) {
+            val coords = lines.getGeometryN(i).getCoordinates
+            for (j <- 0 until coords.length - 1) {
+              g.drawLine(coords(j).x.toInt, coords(j).y.toInt, coords(j + 1).x.toInt, coords(j + 1).y.toInt)
+            }
+          }
+        }
       }
     }
     for (j <- 0 until points.length) {
