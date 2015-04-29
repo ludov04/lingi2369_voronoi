@@ -28,5 +28,5 @@ trait IDCEL[P] {
   }
 
   def addHalfEdges(v1 : Vertex, v2: Vertex)
-
+  def createEdge : (HalfEdge, HalfEdge)
 }

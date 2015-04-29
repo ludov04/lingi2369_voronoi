@@ -6,8 +6,7 @@ import scala.collection.mutable
 /**
  * Created by ludov on 27/04/15.
  */
-class DCEL extends IDCEL[Coordinate] {
-  import DCEL._
+object DCEL extends IDCEL[Coordinate] {
   val edges = new mutable.HashSet[HalfEdge]()
   val faces = new mutable.HashSet()
   val vertices = new mutable.HashSet()
@@ -16,7 +15,7 @@ class DCEL extends IDCEL[Coordinate] {
 
   }
 
-  def createHalfEdges : (HalfEdge, HalfEdge) = {
+  def createEdge : (HalfEdge, HalfEdge) = {
     val h1 = HalfEdge(null, null, null, null, null)
     val h2 = HalfEdge(null, null, null, null, null)
     h1.twin = h2
@@ -26,5 +25,3 @@ class DCEL extends IDCEL[Coordinate] {
     (h1, h2)
   }
 }
-
-object DCEL extends DCEL

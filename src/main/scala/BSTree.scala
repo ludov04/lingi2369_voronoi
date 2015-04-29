@@ -1,4 +1,5 @@
 import com.vividsolutions.jts.geom.Coordinate
+
 import structure.DCEL._
 
 /**
