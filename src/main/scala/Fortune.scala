@@ -24,7 +24,7 @@ class Fortune {
   var tree : BSTree = EmptyT()
   val factory = new GeometryFactory()
 
-  def run(points: Array[Coordinate]): Unit ={
+  def run(points: Array[Coordinate]) = {
     for(i <- 0 until points.length){
       q.enqueue(new SiteEvent(points(i), points(i).y))
     }

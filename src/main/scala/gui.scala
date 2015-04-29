@@ -29,12 +29,21 @@ class Gui(val content : Drawer) {
 
     val buttons = new JPanel()
     val naiveButton = new JButton("Naive")
+    val fortuneButton = new JButton("Fortune")
     val genButton = new JButton("Generate")
     val clearButton = new JButton("Clear")
+    buttons.add(fortuneButton)
     buttons.add(naiveButton)
     buttons.add(genButton)
     buttons.add(clearButton)
     frame.getContentPane.add(buttons, BorderLayout.SOUTH)
+
+    fortuneButton.addActionListener(new ActionListener {
+      override def actionPerformed(e: ActionEvent): Unit = {
+        val fortune = new Fortune
+        content.refresh(fact.createGeometryCollection(fortune.run(points.toArray)))
+      }
+    })
 
     naiveButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
