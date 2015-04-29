@@ -30,11 +30,11 @@ class NodeOrdering(y : Int) extends Ordering[ArcNode] {
   }
   def compare(a: ArcNode, b : ArcNode): Int = {
     a match {
-      case SiteTuple(aSites) => b match {
-          case SiteTuple(bSites) => aSites.x.compareTo(bSites.x)
+      case SiteTuple(aSites, _) => b match {
+          case SiteTuple(bSites, edge) => aSites.x.compareTo(bSites.x)
           case Arc(site) => aSites.x.compareTo(site.x)
         }
-      case Arc(site) => b match {
+      case Arc(site, _, _, _) => b match {
           case SiteTuple(bSites) => site.x.compareTo(bSites.x)
           case Arc(p) => site.x.compareTo(p.x)
         }
@@ -78,6 +78,7 @@ case class Node(var left: BSTree, value: SiteTuple, var right: BSTree, var paren
 }
 
 object Tree {
+
   def removeArcNode(x: Leaf): BSTree ={
     x match {
       case Leaf(value, parent) if parent == null => {
