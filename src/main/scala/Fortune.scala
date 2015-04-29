@@ -60,6 +60,8 @@ class Fortune {
         }
       }
     }
+
+    createLinesFromEdges
   }
 
   def getPolygons : List[Polygon] = {
