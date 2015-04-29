@@ -40,12 +40,14 @@ sealed trait BSTree {
 case class EmptyT() extends BSTree {
   def parent = null
   def toList = Nil
-  def getLeftMost = this
-  def getRightMost = this
+  def getLeftMost = null
+  def getRightMost = null
 }
 
 case class Leaf(value: Arc, var parent: Node) extends BSTree {
   def toList = Nil
+  def getLeftMost = this
+  def getRightMost = this
 }
 
 case class Node(var left: BSTree, value: SiteTuple, var right: BSTree, var parent: Node) extends BSTree {
