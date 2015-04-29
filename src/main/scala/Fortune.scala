@@ -41,12 +41,23 @@ class Fortune {
     val allPoints = multipointV.union(multipoint)
     val env = allPoints.getEnvelopeInternal
     val treeL = tree.toList
+    val ord = new NodeOrdering(env.getMinY-10)
     treeL.foreach {
       case p : SiteTuple => {
-        val (p1, p2) = p.sites
-        val a = (p1.x - p2.x) / (p2.y - p1.y)
-        val b = (Math.pow(p2.y, 2) + Math.pow(p2.x, 2) - Math.pow(p1.x, 2) - Math.pow(p1.y, 2)) / (2 * (p2.y - p1.y))
+        //val (p1, p2) = p.sites
+        //val a = (p1.x - p2.x) / (p2.y - p1.y)
+        //val b = (Math.pow(p2.y, 2) + Math.pow(p2.x, 2) - Math.pow(p1.x, 2) - Math.pow(p1.y, 2)) / (2 * (p2.y - p1.y))
 
+        p.edge match {
+          case HalfEdge(origin, _, _, _, _) if origin == null => {
+            val orig = new Vertex(ord.breakPoint(p.sites), p.edge)
+            p.edge.origin = orig
+          }
+          case _ => {
+            val orig = new Vertex(ord.breakPoint(p.sites), p.edge.twin)
+            p.edge.twin.origin = orig
+          }
+        }
       }
     }
   }
