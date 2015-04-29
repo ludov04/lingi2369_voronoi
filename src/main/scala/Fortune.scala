@@ -184,7 +184,9 @@ class Fortune {
       if (center.y - r <= sweepY) {
         //add event
         val event = CircleEvent(a, center.y - r)
+
         a.event = Some(event)
+        q += event
       }
     }
   }
