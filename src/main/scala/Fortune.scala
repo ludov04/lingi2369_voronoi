@@ -42,7 +42,7 @@ class Fortune {
         val newEdge = HalfEdge(null, null, null, null, null)
         val vertex = Vertex(c, newEdge)
         newEdge.origin = vertex
-        
+
 
         //Handle suppression in the tree
         a match {
