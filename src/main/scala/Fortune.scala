@@ -5,14 +5,16 @@ import scala.collection.mutable
  * Created by ludov on 27/04/15.
  */
 
-trait Event
+trait Event {
+  def y : Double
+}
 
 case class CircleEvent(a: Arc) extends Event
 case class SiteEvent() extends Event
 
 class Fortune {
 
-  var q = new mutable.PriorityQueue[Event]()
+  var q = new mutable.PriorityQueue[Event]()(Ordering.by[Event, Double](_.y))
   val edgeList = DCEL
   import edgeList._
   var tree : BSTree = EmptyT()
@@ -102,7 +104,15 @@ class Fortune {
     }
   }
 
-  def checkCircleEvent(a : Arc) = ???
+  def checkCircleEvent(a : Arc): Unit = {
+    //check if there is a triple
+    val l = a.pred
+    val r = a.next
+    if (l == null || r == null ) return //
+    else {
+      computeCenter(a).
+    }
+  }
 
   def computeCenter(a: Arc) : Option[Coordinate] = {
     a match {
