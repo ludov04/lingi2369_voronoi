@@ -1,6 +1,5 @@
 import com.vividsolutions.jts.geom.{Coordinate, Point}
-import structure.DCEL
-import structure.DCEL._
+import structure.{IDCEL, DCEL}
 import scala.collection.mutable
 /**
  * Created by ludov on 27/04/15.
@@ -14,8 +13,9 @@ case class SiteEvent() extends Event
 class Fortune {
 
   var q = new mutable.PriorityQueue[Event]()
-  val edgeList : DCEL = new DCEL()
-  var tree = EmptyT()
+  val edgeList = DCEL
+  import edgeList._
+  var tree : BSTree = EmptyT()
 
   def handleCircleEvent(l : Leaf) = {
     val a = l.value
@@ -81,12 +81,12 @@ class Fortune {
   def handleSiteEvent(p: Coordinate) = {
     val newArc = new Arc(p, None, None, None)
     if (tree.isEmpty) {
-      Tree.insert(newArc, tree)
+      tree = Leaf(newArc, null)
     }
     else {
 
       //Create Half-Edges
-      val (h1, h2) = edgeList.createHalfEdges
+      val (h1, h2) = edgeList.createEdge
 
       val old = Tree.addParabola(newArc, h1, tree) // the leaf containing the arc vertically above p
       old.value.event.foreach(toRemove => q = q.filterNot(event => toRemove == event)) // remove false alarm
