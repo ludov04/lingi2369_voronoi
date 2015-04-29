@@ -8,8 +8,8 @@ import scala.collection.mutable
  */
 object DCEL extends IDCEL[Coordinate] {
   val edges = new mutable.HashSet[HalfEdge]()
-  val faces = new mutable.HashSet()
-  val vertices = new mutable.HashSet()
+  val faces = new mutable.HashSet[Face]()
+  val vertices = new mutable.HashSet[Vertex]()
 
   override def addHalfEdges(v1: Vertex, v2: Vertex): Unit = {
 
