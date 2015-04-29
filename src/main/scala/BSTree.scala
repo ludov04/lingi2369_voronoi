@@ -8,7 +8,7 @@ import com.vividsolutions.jts.geom.Coordinate
 sealed trait ArcNode
 
 case class Arc(site: Coordinate, var pred: Option[Arc], var next: Option[Arc], var event: Option[CircleEvent]) extends ArcNode
-case class SiteTuple(sites: (Coordinate, Coordinate)) extends ArcNode
+case class SiteTuple(var sites: (Coordinate, Coordinate)) extends ArcNode
 
 class NodeOrdening(y : Int) extends Ordering[ArcNode] {
 
@@ -31,6 +31,7 @@ class NodeOrdening(y : Int) extends Ordering[ArcNode] {
 }
 
 sealed trait BSTree {
+  def value : ArcNode
   def parent : BSTree
   def toList: List[ArcNode]
   def getLeftMost : Leaf
@@ -38,6 +39,7 @@ sealed trait BSTree {
 }
 
 case class EmptyT() extends BSTree {
+  def value = null
   def parent = null
   def toList = Nil
   def getLeftMost = null
@@ -72,7 +74,7 @@ object Tree {
             if(parentN == null) rightN
             else {
               val leftBound = findLeft(parentN)
-              if(leftBound != null) parentN.value.sites = (parentN.value.sites._1, rightN.)
+              if(leftBound != null) leftBound.value.sites = (leftBound.value.sites._1, rightN.getLeftMost.value.site)
               parentN match {
                 case Node(leftPN, valuePN, rightPN, parentPN) if leftPN == parentL => {
                   parentN.left = rightN
@@ -89,6 +91,8 @@ object Tree {
           case Node(leftN, valueN, rightN, parentN) => {
             if(parentN == null) leftN
             else {
+              val rightBound = findLeft(parentN)
+              if(rightBound != null) rightBound.value.sites = (rightBound.value.sites._1, leftN.getRightMost.value.site)
               parentN match {
                 case Node(leftPN, valuePN, rightPN, parentPN) if leftPN == parentL => {
                   parentN.left = leftN
@@ -107,7 +111,7 @@ object Tree {
     }
   }
 
-  def findLeft(x: Node): BSTree = {
+  def findLeft(x: Node): Node = {
     x match {
       case Node(leftN, valueN, rightN, parentN) if parentN != null && parentN.left == x => {
         findLeft(parentN)
@@ -121,7 +125,7 @@ object Tree {
     }
   }
 
-  def findRight(x: Node): BSTree = {
+  def findRight(x: Node): Node = {
     x match {
       case Node(leftN, valueN, rightN, parentN) if parentN != null && parentN.left == x => {
         parentN
