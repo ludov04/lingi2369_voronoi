@@ -1,4 +1,5 @@
 import com.vividsolutions.jts.geom.{Coordinate, Point}
+import structure.DCEL
 
 import scala.collection.mutable
 import scalacaster.Tree
@@ -16,7 +17,7 @@ class Fortune {
 
   val q = new mutable.PriorityQueue[Event]()
   val edgeList : DCEL = new DCEL()
-  val tree = Tree.empty[Arc]
+  val tree = EmptyT()
 
   def handleCircleEvent(a : Arc) = {
 
@@ -24,10 +25,10 @@ class Fortune {
 
   def handleSiteEvent(p: Coordinate) = {
     if (tree.isEmpty) {
-      tree.add(new Arc(p, None, None, None))
+      Tree.insert(new Arc(p, None, None, None), tree)
     }
     else {
-      val above : Arc = ??? // the arc vertically above p
+      val above : Leaf = Tree.search(p, tree) // the leaf containing the arc vertically above p
 
     }
   }

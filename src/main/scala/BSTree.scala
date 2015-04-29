@@ -1,4 +1,5 @@
 import com.vividsolutions.jts.geom.Coordinate
+import structure.DCEL
 
 /**
  * Created by Fabian on 27-04-15.
@@ -8,9 +9,9 @@ import com.vividsolutions.jts.geom.Coordinate
 sealed trait ArcNode
 
 case class Arc(site: Coordinate, var pred: Option[Arc], var next: Option[Arc], var event: Option[CircleEvent]) extends ArcNode
-case class SiteTuple(var sites: (Coordinate, Coordinate)) extends ArcNode
+case class SiteTuple(var sites: (Coordinate, Coordinate), edge: DCEL.HalfEdge = None) extends ArcNode
 
-class NodeOrdening(y : Int) extends Ordering[ArcNode] {
+class NodeOrdering(y : Int) extends Ordering[ArcNode] {
 
   implicit def breakPoint(sites : (Coordinate, Coordinate)): Coordinate = {
     val a = (1/(sites._1.y-y))-(1/(sites._2.y-y))
@@ -47,6 +48,7 @@ sealed trait BSTree {
   def toList: List[ArcNode]
   def getLeftMost : Leaf
   def getRightMost : Leaf
+  def isEmpty : Boolean
 }
 
 case class EmptyT() extends BSTree {
@@ -55,12 +57,14 @@ case class EmptyT() extends BSTree {
   def toList = Nil
   def getLeftMost = null
   def getRightMost = null
+  def isEmpty = true
 }
 
 case class Leaf(value: Arc, var parent: Node) extends BSTree {
   def toList = Nil
   def getLeftMost = this
   def getRightMost = this
+  def isEmpty = false
 }
 
 case class Node(var left: BSTree, value: SiteTuple, var right: BSTree, var parent: Node) extends BSTree {
@@ -70,6 +74,7 @@ case class Node(var left: BSTree, value: SiteTuple, var right: BSTree, var paren
 
   def getRightMost = right.getRightMost
 
+  def isEmpty = false
 }
 
 object Tree {
@@ -219,13 +224,13 @@ object Tree {
   }
 
 
-  def search(x: Coordinate, tree: BSTree)(implicit o : Ordering[ArcNode]): Leaf = {
+  def search(x: Coordinate, tree: BSTree)(implicit o : NodeOrdering): Leaf = {
     import o._
     tree match {
-      case Leaf => false
-      case Node(left, value, right) if x < value => search(x, left)
-      case Node(left, value, right) if x > value => search(x, right)
-      case _ => true
+      case v: Leaf => v
+      case Node(left, value, right) if x.x < value.sites.x => search(x, left)
+      case Node(left, value, right) if x.x >= value.sites.x => search(x, right)
+      case _ : EmptyT => throw new UnsupportedOperationException
     }
   }
 

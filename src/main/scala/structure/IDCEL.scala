@@ -1,4 +1,4 @@
-import scala.collection.mutable.MutableList
+package structure
 
 /**
  * Created by ludov on 27/04/15.

@@ -1,6 +1,8 @@
-import scala.collection.mutable
+package structure
 
-import com.vividsolutions.jts.geom.{Coordinate, Point}
+import com.vividsolutions.jts.geom.Coordinate
+
+import scala.collection.mutable
 /**
  * Created by ludov on 27/04/15.
  */
@@ -13,3 +15,5 @@ class DCEL extends IDCEL[Coordinate] {
 
   }
 }
+
+object DCEL extends DCEL
