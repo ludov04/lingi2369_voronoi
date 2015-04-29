@@ -9,9 +9,13 @@ import structure.DCEL._
 
 sealed trait ArcNode
 
-case class Arc(site: Coordinate, var pred: Option[Arc], var next: Option[Arc], var event: Option[CircleEvent]) extends ArcNode
+case class Arc(site: Coordinate, var pred: Option[Arc], var next: Option[Arc], var event: Option[CircleEvent]) extends ArcNode {
+  override def toString = site.toString
+}
 
-case class SiteTuple(var sites: (Coordinate, Coordinate), var edge: HalfEdge) extends ArcNode
+case class SiteTuple(var sites: (Coordinate, Coordinate), var edge: HalfEdge) extends ArcNode {
+  override def toString = sites.toString
+}
 
 
 class NodeOrdering(y : Double) extends Ordering[ArcNode] {
@@ -176,7 +180,7 @@ object Tree {
    * @param tree
    * @return the leaf that were replaced
    */
-  def addParabola(a : Arc, h: HalfEdge, tree: BSTree)(implicit o : NodeOrdering) : Leaf = {
+  def addParabola(a : Arc, h: HalfEdge, tree: BSTree)(implicit o : NodeOrdering) : (Leaf, BSTree) = {
     val node = search(a.site, tree)
 
     val leftArc = node.value.copy(next = Some(a))
@@ -197,8 +201,7 @@ object Tree {
     sub.parent = newTree
     rightLeaf.parent = newTree
 
-    replaceNode(node, newTree, tree)
-    node
+    (node, replaceNode(node, newTree, tree))
   }
 
   def replaceNode(oldNode: Leaf, newNode: Node, tree: BSTree) : BSTree = {
@@ -218,11 +221,16 @@ object Tree {
 
     //Update the tuples
     val rightParent = findRight(oldNode)
-    val rightIntersection = rightParent.value.sites
     val leftParent = findLeft(oldNode)
-    val leftIntersection = leftParent.value.sites
-    rightParent.value.sites = ( right.value.site , rightIntersection._2)
-    leftParent.value.sites = (leftIntersection._1, left.value.site)
+
+    if (rightParent != null) {
+      val rightIntersection = rightParent.value.sites
+      rightParent.value.sites = ( right.value.site , rightIntersection._2)
+    }
+    if (leftParent != null) {
+      val leftIntersection = leftParent.value.sites
+      leftParent.value.sites = (leftIntersection._1, left.value.site)
+    }
 
     //replace the node
     if(oldNode.parent.left == oldNode) oldNode.parent.left = newNode

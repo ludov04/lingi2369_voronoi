@@ -49,11 +49,17 @@ class Drawer(var points : Array[Coordinate], var result: GeometryCollection) ext
             }
           }
         }
+        case "LineString" => {
+          val coords = currGeometry.getCoordinates
+          for (j <- 0 until coords.length - 1) {
+            g.drawLine(coords(j).x.toInt, coords(j).y.toInt, coords(j + 1).x.toInt, coords(j + 1).y.toInt)
+          }
+        }
       }
     }
     for (j <- 0 until points.length) {
       g.setColor(Color.RED)
-      g.fillOval(points(j).x.toInt - 2, points(j).y.toInt - 2, 4, 4)
+      g.fillOval(points(j).x.toInt - 3, points(j).y.toInt - 3, 6, 6)
     }
   }
 

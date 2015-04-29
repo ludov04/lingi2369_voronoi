@@ -83,7 +83,7 @@ class Fortune {
   def createLinesFromEdges : MultiLineString = {
     val lines = edgeList.edges.map { edge =>
       val p1 = edge.origin.point
-      val p2 = edge.origin.point
+      val p2 = edge.twin.origin.point
 
       factory.createLineString(Array(p1, p2))
     }.toArray
@@ -164,7 +164,9 @@ class Fortune {
       //Create Half-Edges
       val (h1, h2) = edgeList.createEdge
 
-      val old = Tree.addParabola(newArc, h1, tree)(new NodeOrdering(p.y)) // create and add the subtree, link the half-edge with internal nodes, link newArc with pred/next
+
+      val (old, newTree) = Tree.addParabola(newArc, h1, tree)(new NodeOrdering(p.y)) // create and add the subtree, link the half-edge with internal nodes, link newArc with pred/next
+      tree = newTree
       old.value.event.foreach(toRemove => q = q.filterNot(event => toRemove == event)) // remove false alarm
 
       newArc.pred.foreach(checkCircleEvent(_, p.y)) //Check the triple of consecutive arcs where the new arc is the right arc
