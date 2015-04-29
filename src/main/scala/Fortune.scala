@@ -98,13 +98,18 @@ class Fortune {
     }
   }
 
-  def checkCircleEvent(a : Arc): Unit = {
+  def checkCircleEvent(a : Arc, sweepY : Double): Unit = {
     //check if there is a triple
-    val l = a.pred
-    val r = a.next
-    if (l == null || r == null ) return //
-    else {
-      computeCenter(a).
+    computeCenter(a).fold(Unit) { center =>
+      center
+      val p = a.site
+      val r = Math.sqrt(Math.pow(center.x - p.x, 2) + Math.pow(center.y - p.y, 2))
+
+      if (center.y - r > sweepY) {
+        //add event
+        val event = CircleEvent
+      }
+      ???
     }
   }
 
