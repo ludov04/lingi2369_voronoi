@@ -37,8 +37,13 @@ class Fortune {
     val allPoints = multipointV.union(multipoint)
     val env = allPoints.getEnvelopeInternal
     val treeL = tree.toList
-    treeL.foreach { site =>
+    treeL.foreach {
+      case p : SiteTuple => {
+        val (p1, p2) = p.sites
+        val a = (p1.x - p2.x) / (p2.y - p1.y)
+        val b = (Math.pow(p2.y, 2) + Math.pow(p2.x, 2) - Math.pow(p1.x, 2) - Math.pow(p1.y, 2)) / (2 * (p2.y - p1.y))
 
+      }
     }
   }
 
