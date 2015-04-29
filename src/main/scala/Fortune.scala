@@ -98,7 +98,15 @@ class Fortune {
     }
   }
 
-  def checkCircleEvent(a : Arc) = ???
+  def checkCircleEvent(a : Arc): Unit = {
+    //check if there is a triple
+    val l = a.pred
+    val r = a.next
+    if (l == null || r == null ) return //
+    else {
+      computeCenter(a).
+    }
+  }
 
   def computeCenter(a: Arc) : Option[Coordinate] = {
     a match {
