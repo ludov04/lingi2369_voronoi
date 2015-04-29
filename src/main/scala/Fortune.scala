@@ -1,4 +1,4 @@
-import com.vividsolutions.jts.geom.{Coordinate, Point}
+import com.vividsolutions.jts.geom.{GeometryFactory, Coordinate, Point}
 import structure.{IDCEL, DCEL}
 import scala.collection.mutable
 /**
@@ -18,6 +18,7 @@ class Fortune {
   val edgeList = DCEL
   import edgeList._
   var tree : BSTree = EmptyT()
+  val factory = new GeometryFactory()
 
   def run(points: Array[Coordinate]): Unit ={
     for(i <- 0 until points.length){
@@ -29,6 +30,15 @@ class Fortune {
         case e : SiteEvent => handleSiteEvent(e.site)
         case e : CircleEvent => handleCircleEvent(Tree.search(e.a,tree))
       }
+    }
+    val multipoint = factory.createMultiPoint(points)
+    val pointsV = edgeList.vertices.map(v => new Coordinate(v.point.x, v.point.y))
+    val multipointV = factory.createMultiPoint(pointsV.toArray)
+    val allPoints = multipointV.union(multipoint)
+    val env = allPoints.getEnvelopeInternal
+    val treeL = tree.toList
+    treeL.foreach { site =>
+
     }
   }
 
@@ -56,13 +66,12 @@ class Fortune {
             else tmp.twin
           }
         }
-        val centerEdge = HalfEdge(null, null, null, null, null)
-        val newEdge = HalfEdge(null, null, null, null, null)
+
+        val (centerEdge, newEdge) = edgeList.createEdge
         val vertex = Vertex(c, newEdge)
+        edgeList.vertices.add(vertex)
 
         newEdge.origin = vertex
-        centerEdge.twin = newEdge
-        newEdge.twin = centerEdge
 
         rightEdge.twin.origin = vertex
         leftEdge.twin.origin = vertex
