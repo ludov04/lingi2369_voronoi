@@ -14,11 +14,11 @@ trait IDCEL[P] {
 
   }
 
-  case class HalfEdge(origin : Vertex,
-                      twin: HalfEdge,
-                      face : Face,
-                      next : HalfEdge,
-                      prev: HalfEdge)
+  case class HalfEdge(var origin : Vertex,
+                      var twin: HalfEdge,
+                      var face : Face,
+                      var next : HalfEdge,
+                      var prev: HalfEdge)
 
 
 

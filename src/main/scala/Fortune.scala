@@ -1,7 +1,6 @@
 import com.vividsolutions.jts.geom.{Coordinate, Point}
 import structure.DCEL
 import structure.DCEL._
-
 import scala.collection.mutable
 /**
  * Created by ludov on 27/04/15.
@@ -67,8 +66,15 @@ class Fortune {
       Tree.insert(newArc, tree)
     }
     else {
-      val old = Tree.addParabola(newArc, tree) // the leaf containing the arc vertically above p
+
+      //Create Half-Edges
+      val (h1, h2) = edgeList.createHalfEdges
+
+      val old = Tree.addParabola(newArc, h1, tree) // the leaf containing the arc vertically above p
       old.value.event.foreach(toRemove => q = q.filterNot(event => toRemove == event)) // remove false alarm
+
+
+
     }
   }
 
