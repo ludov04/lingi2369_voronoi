@@ -35,15 +35,92 @@ sealed trait BSTree {
   def toList: List[ArcNode]
 }
 
-case class Leaf(value: Arc, var parent: BSTree) extends BSTree {
+case class EmptyT() extends BSTree {
+  def parent = null
   def toList = Nil
 }
 
-case class Node(left: BSTree, value: SiteTuple, right: BSTree, var parent: BSTree) extends BSTree {
+case class Leaf(value: Arc, var parent: Node) extends BSTree {
+  def toList = Nil
+}
+
+case class Node(var left: BSTree, value: SiteTuple, var right: BSTree, var parent: Node) extends BSTree {
   def toList = left.toList ::: value :: right.toList
 }
 
 object Tree {
+  def removeArcNode(x: Leaf): BSTree ={
+    x match {
+      case Leaf(value, parent) if parent == null => {
+        val emptyT = new EmptyT()
+        emptyT
+      }
+      case Leaf(valueL, parentL) => {
+        parentL match {
+          case Node(leftN, valueN, rightN, parentN) if leftN == x => {
+            if(parentN == null) rightN
+            else {
+              parentN match {
+                case Node(leftPN, valuePN, rightPN, parentPN) if leftPN == parentL => {
+                  parentN.left = rightN
+                  parentN //TODO : determine what to return exactly
+                }
+                case Node(leftPN, valuePN, rightPN, parentPN) => {
+                  parentN.right = rightN
+                  parentN //TODO : determine what to return exactly
+
+                }
+              }
+            }
+          }
+          case Node(leftN, valueN, rightN, parentN) => {
+            if(parentN == null) leftN
+            else {
+              parentN match {
+                case Node(leftPN, valuePN, rightPN, parentPN) if leftPN == parentL => {
+                  parentN.left = leftN
+                  parentN //TODO : determine what to return exactly
+                }
+                case Node(leftPN, valuePN, rightPN, parentPN) => {
+                  parentN.right = leftN
+                  parentN //TODO : determine what to return exactly
+
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  def findLeft(x: Node): BSTree = {
+    x match {
+      case Node(leftN, valueN, rightN, parentN) if parentN != null && parentN.left == x => {
+        findLeft(parentN)
+      }
+      case Node(leftN, valueN, rightN, parentN) if parentN != null && parentN.right == x => {
+        parentN
+      }
+      case Node(leftN, valueN, rightN, parentN) => {
+        null
+      }
+    }
+  }
+
+  def findRight(x: Node): BSTree = {
+    x match {
+      case Node(leftN, valueN, rightN, parentN) if parentN != null && parentN.left == x => {
+        parentN
+      }
+      case Node(leftN, valueN, rightN, parentN) if parentN != null && parentN.right == x => {
+        findLeft(parentN)
+      }
+      case Node(leftN, valueN, rightN, parentN) => {
+        null
+      }
+    }
+  }
 
   def insertLeaf(x: Arc, tree: BSTree)(implicit o : Ordering[ArcNode]) : BSTree = {
     import o._
@@ -55,20 +132,20 @@ object Tree {
         node
       }
       case Leaf(value, parent) => {
-        val node = Node(tree, SiteTuple((x.site, value.site)), newLeaf, parent)
+        val node = Node(tree, SiteTuple((value.site, x.site)), newLeaf, parent)
         newLeaf.parent = node
         node
+      }
+      case EmptyT() => {
+        newLeaf
       }
     }
   }
 
-  def insert(x: ArcNode, tree: BSTree)(implicit o : Ordering[ArcNode]) : BSTree = {
+  def insert(x: Arc, tree: BSTree)(implicit o : Ordering[ArcNode]) : BSTree = {
     import o._
     tree match {
-      case t : Leaf => x match {
-        case v : Arc => insertLeaf(v, t)
-        case v : SiteTuple => insertNode(v, t)
-      }
+      case t : Leaf => insertLeaf(x, t)
       case Node(left, value, right, parent) if x < value => {
         Node(insert(x, left), value, right, parent)
       }
@@ -77,7 +154,6 @@ object Tree {
       }
     }
   }
-
 
   def insertNode(x: SiteTuple, tree: BSTree)(implicit o : Ordering[ArcNode]): BSTree = {
     import o._
@@ -98,6 +174,11 @@ object Tree {
       case Node(left, value, right) if x > value => search(x, right)
       case _ => true
     }
+  }
+
+  def search(x: Arc, tree: BSTree)(implicit o : Ordering[ArcNode]): Leaf = {
+    import o._
+    ???
   }
 
   def tsort[T <% Ordered[T]](values: List[T]) = values.foldRight(Leaf: BSTree[T])(insert).toList
