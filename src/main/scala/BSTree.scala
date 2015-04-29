@@ -60,6 +60,8 @@ object Tree {
           case Node(leftN, valueN, rightN, parentN) if leftN == x => {
             if(parentN == null) rightN
             else {
+              val leftBound = findLeft(parentN)
+              if(leftBound != null) parentN.value.sites = (parentN.value.sites._1, rightN.)
               parentN match {
                 case Node(leftPN, valuePN, rightPN, parentPN) if leftPN == parentL => {
                   parentN.left = rightN
