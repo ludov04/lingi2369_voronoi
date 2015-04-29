@@ -214,6 +214,8 @@ object Tree {
     next.foreach(_.pred = Some(right.value))
 
 
+    if(oldNode.parent == null) return newNode
+
     //Update the tuples
     val rightParent = findRight(oldNode)
     val rightIntersection = rightParent.value.sites
@@ -223,8 +225,7 @@ object Tree {
     leftParent.value.sites = (leftIntersection._1, left.value.site)
 
     //replace the node
-    if(oldNode.parent == null) return newNode
-    else if(oldNode.parent.left == oldNode) oldNode.parent.left = newNode
+    if(oldNode.parent.left == oldNode) oldNode.parent.left = newNode
     else if(oldNode.parent.right == oldNode) oldNode.parent.right = newNode
 
     tree
