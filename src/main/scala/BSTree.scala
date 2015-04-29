@@ -242,4 +242,19 @@ object Tree {
     }
   }
 
+  def search(a: Arc, tree: BSTree)(implicit o : NodeOrdering): Leaf = {
+    import o._
+    a match {
+      case Arc(_, None, _, _) => tree.getLeftMost
+      case Arc(_, _, None, _) => tree.getRightMost
+      case Arc(valA, Some(pred), Some(next), _) => {
+        tree match {
+          case v: Leaf => v
+          case Node(left, value, right, parent) if breakPoint((a.site, next.site)).x < value.sites.x => search(a, left)
+          case Node(left, value, right, parent) if breakPoint((pred.site, a.site)).x > value.sites.x => search(a, right)
+        }
+      }
+    }
+  }
+
 }

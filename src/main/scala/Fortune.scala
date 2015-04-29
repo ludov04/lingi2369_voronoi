@@ -9,8 +9,8 @@ trait Event {
   def y : Double
 }
 
-case class CircleEvent(a: Arc) extends Event
-case class SiteEvent() extends Event
+case class CircleEvent(a: Arc, y: Double) extends Event
+case class SiteEvent(site: Coordinate, y: Double) extends Event
 
 class Fortune {
 
@@ -18,6 +18,19 @@ class Fortune {
   val edgeList = DCEL
   import edgeList._
   var tree : BSTree = EmptyT()
+
+  def run(points: Array[Coordinate]): Unit ={
+    for(i <- 0 until points.length){
+      q.enqueue(new SiteEvent(points(i), points(i).y))
+    }
+    while(!q.isEmpty){
+      val event = q.dequeue()
+      event match {
+        case e : SiteEvent => handleSiteEvent(e.site)
+        case e : CircleEvent => handleCircleEvent(Tree.search(e.a,tree))
+      }
+    }
+  }
 
   def handleCircleEvent(l : Leaf) = {
     val a = l.value
