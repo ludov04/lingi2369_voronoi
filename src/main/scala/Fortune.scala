@@ -5,14 +5,16 @@ import scala.collection.mutable
  * Created by ludov on 27/04/15.
  */
 
-trait Event
+trait Event {
+  def y : Double
+}
 
 case class CircleEvent(a: Arc) extends Event
 case class SiteEvent() extends Event
 
 class Fortune {
 
-  var q = new mutable.PriorityQueue[Event]()
+  var q = new mutable.PriorityQueue[Event]()(Ordering.by[Event, Double](_.y))
   val edgeList = DCEL
   import edgeList._
   var tree : BSTree = EmptyT()
