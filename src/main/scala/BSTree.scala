@@ -23,15 +23,15 @@ class NodeOrdering(y : Double) extends Ordering[ArcNode] {
   implicit def breakPoint(sites : (Coordinate, Coordinate)): Coordinate = {
     val a = (1/(sites._1.y-y))-(1/(sites._2.y-y))
     val b = (-2*sites._1.x/(sites._1.y-y))+(2*sites._2.x/(sites._2.y-y))
-    val c = sites._1.y-sites._2.y
+    val c = (Math.pow(sites._1.x,2)/(sites._1.y-y))-(Math.pow(sites._2.x,2)/(sites._2.y-y))
     val delta = Math.pow(b, 2) - (4*a*c)
     val s1 = (-b-Math.sqrt(delta))/(2*a)
     val s2 = (-b+Math.sqrt(delta))/(2*a)
     if(sites._1.y > sites._2.y){
-      val sy = Math.pow(s1-sites._1.x, 2)/(2*(sites._1.y-y))+((sites._1.y+sites._2.y)/2)
+      val sy = Math.pow(s1-sites._1.x, 2)/(2*(sites._1.y-y))+y
       new Coordinate(s1, sy)
     } else {
-      val sy = Math.pow(s2-sites._1.x, 2)/(2*(sites._1.y-y))+((sites._1.y+sites._2.y)/2)
+      val sy = Math.pow(s2-sites._1.x, 2)/(2*(sites._1.y-y))+y
       new Coordinate(s2, sy)
     }
   }
@@ -46,6 +46,13 @@ class NodeOrdering(y : Double) extends Ordering[ArcNode] {
           case Arc(p, _, _, _) => site.x.compareTo(p.x)
         }
     }
+  }
+}
+
+object testrun {
+  def main(args: Array[String]): Unit = {
+    val ord = new NodeOrdering(0)
+    println(ord.breakPoint((new Coordinate(0,10), new Coordinate(10,1))))
   }
 }
 
