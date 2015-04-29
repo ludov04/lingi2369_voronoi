@@ -1,4 +1,4 @@
-import com.vividsolutions.jts.geom.{Coordinate, Point}
+import com.vividsolutions.jts.geom.{Polygon, Coordinate, Point}
 import structure.{IDCEL, DCEL}
 import scala.collection.mutable
 /**
@@ -14,7 +14,7 @@ case class SiteEvent(site: Coordinate, y: Double) extends Event
 
 class Fortune {
 
-  var q = new mutable.PriorityQueue[Event]()(Ordering.by[Event, Double](_.y))
+  var q = new mutable.PriorityQueue[Event]()(Ordering.by(_.y))
   val edgeList = DCEL
   import edgeList._
   var tree : BSTree = EmptyT()
@@ -27,12 +27,17 @@ class Fortune {
       val event = q.dequeue()
       event match {
         case e : SiteEvent => handleSiteEvent(e.site)
-        case e : CircleEvent => handleCircleEvent(Tree.search(e.a,tree))
+        case e : CircleEvent => handleCircleEvent(Tree.search(e.a,tree), e.y)
       }
     }
   }
 
-  def handleCircleEvent(l : Leaf) = {
+  def getPolygons : List[Polygon] = {
+    edgeList.faces
+    ???
+  }
+
+  def handleCircleEvent(l : Leaf, sweepY: Double) = {
     val a = l.value
     val center = computeCenter(a)
     center match {
@@ -89,6 +94,9 @@ class Fortune {
 
         }
 
+        a.pred.foreach(checkCircleEvent(_, sweepY)) //Check the triple of consecutive arcs where the a is the right arc
+        a.next.foreach(checkCircleEvent(_, sweepY)) //Check the triple of consecutive arcs where the a is the left arc
+
       }
     }
   }
@@ -103,26 +111,27 @@ class Fortune {
       //Create Half-Edges
       val (h1, h2) = edgeList.createEdge
 
-      val old = Tree.addParabola(newArc, h1, tree) // the leaf containing the arc vertically above p
+      val old = Tree.addParabola(newArc, h1, tree) // create and add the subtree, link the half-edge with internal nodes, link newArc with pred/next
       old.value.event.foreach(toRemove => q = q.filterNot(event => toRemove == event)) // remove false alarm
 
-
-
+      newArc.pred.foreach(checkCircleEvent(_, p.y)) //Check the triple of consecutive arcs where the new arc is the right arc
+      newArc.next.foreach(checkCircleEvent(_, p.y)) //Check the triple of consecutive arcs where the new arc is the left arc
     }
   }
 
-  def checkCircleEvent(a : Arc, sweepY : Double): Unit = {
+  def checkCircleEvent(a : Arc, sweepY : Double) = {
     //check if there is a triple
-    computeCenter(a).fold(Unit) { center =>
+    //if computeCenter return None, it means that there is no triple
+    computeCenter(a).foreach { center =>
       center
       val p = a.site
       val r = Math.sqrt(Math.pow(center.x - p.x, 2) + Math.pow(center.y - p.y, 2))
 
-      if (center.y - r > sweepY) {
+      if (center.y - r <= sweepY) {
         //add event
-        val event = CircleEvent
+        val event = CircleEvent(a, center.y - r)
+        a.event = Some(event)
       }
-      ???
     }
   }
 
