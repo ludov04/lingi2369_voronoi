@@ -279,11 +279,15 @@ object Tree {
             }
             v
           }
-          case Node(left, value, right, parent) if (breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x)/2 < value.sites.x => search(a, left)(o)
+          case Node(left, value, right, parent) if (round(breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x)/2) < round(value.sites.x) => search(a, left)(o)
           case Node(left, value, right, parent) => search(a, right)(o)
         }
       }
     }
+  }
+
+  def round(x: Double) = {
+    Math.floor(x * 100) / 100
   }
 
 }
