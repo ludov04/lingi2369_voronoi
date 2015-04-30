@@ -302,12 +302,12 @@ object Tree {
             println("XY == AN")
             search(a, left)(o)
           }
-          case Node(left, value, right, parent) if round(breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x/2) < round(value.sites.x) => {
+          case Node(left, value, right, parent) if round((breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x)/2) < round(value.sites.x) => {
             println(value.sites.toString())
             println("PAN < XY")
             search(a, left)(o)
           }
-          case Node(left, value, right, parent) if round(breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x/2) == round(value.sites.x) => {
+          case Node(left, value, right, parent) if round((breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x)/2) == round(value.sites.x) => {
             println(value.sites.toString())
             println("PAN == XY")
             if(value.sites._2 == a.site) search(a, right)(o)
