@@ -10,6 +10,7 @@ import javax.swing.{BorderFactory, JButton, JFrame, JPanel}
 
 import com.vividsolutions.jts.geom._
 import com.vividsolutions.jts.io.WKTReader
+import structure.DCEL
 import sun.nio.cs.Surrogate.Generator
 
 import scala.collection.mutable.ArrayBuffer
@@ -42,6 +43,7 @@ class Gui(val content : Drawer) {
     fortuneButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
         val fortune = new Fortune
+        DCEL.clear()
         content.refresh(fortune.run(points.toArray))
       }
     })
@@ -65,6 +67,7 @@ class Gui(val content : Drawer) {
     clearButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
         points.clear()
+        DCEL.clear()
         content.refresh(points.toArray, fact.createGeometryCollection(Array[Geometry]()))
       }
     })

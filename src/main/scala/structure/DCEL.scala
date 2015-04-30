@@ -31,4 +31,10 @@ object DCEL {
     edges += h2
     (h1, h2)
   }
+
+  def clear() = {
+    edges.clear()
+    faces.clear()
+    vertices.clear()
+  }
 }
