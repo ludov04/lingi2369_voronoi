@@ -268,12 +268,18 @@ object Tree {
   def search(a: Arc, tree: BSTree)(implicit o : NodeOrdering): Leaf = {
     import o._
     a match {
-      case Arc(_, None, _, _) => tree.getLeftMost
-      case Arc(_, _, None, _) => tree.getRightMost
+      case Arc(_, None, _, _) => {
+        println("fin a wrong arc : leftMost arc")
+        tree.getLeftMost
+      }
+      case Arc(_, _, None, _) => {
+        println("fin a wrong arc : rightMost arc")
+        tree.getRightMost
+      }
       case Arc(valA, Some(pred), Some(next), _) => {
         tree match {
           case v: Leaf => {
-            if(v.value != a) println("find a wrong arc")
+            if(v.value != a) println("find a wrong arc : other")
             v
           }
           case Node(left, value, right, parent) if (breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x)/2 < value.sites.x => search(a, left)(o)
