@@ -16,8 +16,10 @@ class CenterSpec extends FortuneSpec {
   }
 
   it should "return none if there is no left neighbor or no right neighbor" in {
-    
+
   }
+  // What happens if the right neighbor and the left neighbor correspond to the same site ?
+  // Should not happen but who nows ?
 
 }
 
