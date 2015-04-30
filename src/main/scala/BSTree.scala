@@ -272,7 +272,10 @@ object Tree {
       case Arc(valA, Some(pred), Some(next), _) => {
         tree match {
           case v: Leaf => {
-            if(v.value != a) println("find a wrong arc")
+            if(v.value != a)
+            {
+              println("find a wrong arc")
+            }
             v
           }
           case Node(left, value, right, parent) if (breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x)/2 < value.sites.x => search(a, left)(o)
