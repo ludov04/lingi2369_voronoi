@@ -90,13 +90,14 @@ case class Node(var left: BSTree, value: SiteTuple, var right: BSTree, var paren
 
   def isEmpty = false
 }
-
+// class Tree(var root : BSTree) {
 object Tree {
 
   def removeArcNode(x: Leaf, edge: HalfEdge): BSTree ={
     x match {
       case Leaf(value, parent) if parent == null => {
         val emptyT = new EmptyT()
+        // root = emptyT
         emptyT
       }
       case Leaf(valueL, parentL) => {
@@ -199,12 +200,12 @@ object Tree {
     a.pred = Some(leftArc)
     a.next = Some(rightArc)
 
-    val leaftLeaf = Leaf(leftArc, null)
+    val leftLeaf = Leaf(leftArc, null)
     val newLeaf = Leaf(a, null)
     val rightLeaf = Leaf(rightArc, null)
 
-    val sub = Node(leaftLeaf, SiteTuple((leftArc.site, a.site), h), newLeaf, null )
-    leaftLeaf.parent = sub
+    val sub = Node(leftLeaf, SiteTuple((leftArc.site, a.site), h), newLeaf, null )
+    leftLeaf.parent = sub
     newLeaf.parent = sub
 
     val newTree = Node(sub, SiteTuple((a.site, rightArc.site), h), rightLeaf, node.parent)
