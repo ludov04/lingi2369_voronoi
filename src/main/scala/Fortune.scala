@@ -98,40 +98,32 @@ class Fortune {
       case Some(c) => {
         //Handle half edges
         val rightEdge = {
-          if (l.parent.left == l) {
-            l.parent.value.edge
-          } else {
-            val tmp = Tree.findRight(l.parent).value.edge
-            if(tmp.origin == null) tmp
-            else tmp.twin
-          }
+          val tmp = Tree.findRight(l).value.edge
+          if(tmp.origin == null) tmp.twin
+          else tmp
         }
         val leftEdge = {
-          if (l.parent.right == l) {
-            l.parent.value.edge
-          } else {
-            val tmp = Tree.findLeft(l.parent).value.edge
-            if(tmp.origin == null) tmp
-            else tmp.twin
-          }
+          val tmp = Tree.findLeft(l).value.edge
+          if(tmp.origin == null) tmp.twin
+          else tmp
         }
 
         val (centerEdge, newEdge) = edgeList.createEdge
-        val vertex = Vertex(c, newEdge)
+        val vertex = Vertex(c, centerEdge)
         edgeList.vertices += vertex
 
-        newEdge.origin = vertex
+        centerEdge.origin = vertex
 
-        rightEdge.twin.origin = vertex
-        leftEdge.twin.origin = vertex
+        rightEdge.origin = vertex
+        leftEdge.origin = vertex
 
-        rightEdge.next = leftEdge.twin
-        leftEdge.next = centerEdge.twin
-        centerEdge.next = rightEdge.twin
+        rightEdge.twin.next = centerEdge
+        leftEdge.twin.next = rightEdge
+        centerEdge.twin.next = leftEdge
 
-        leftEdge.twin.prev = rightEdge
-        centerEdge.twin.prev = leftEdge
-        rightEdge.twin.prev = centerEdge
+        centerEdge.prev = rightEdge.twin
+        rightEdge.prev = leftEdge.twin
+        leftEdge.prev = centerEdge.twin
 
 
         //Handle suppression in the tree
