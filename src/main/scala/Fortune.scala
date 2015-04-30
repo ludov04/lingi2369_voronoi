@@ -194,6 +194,10 @@ class Fortune {
   def computeCenter(a: Arc) : Option[Coordinate] = {
     a match {
       case Arc(site, Some(pred), Some(next), event) => {
+        if (next.site == pred.site) {
+          println(pred.site + " " + a.site + " " + next.site)
+          return None
+        }
         var p1 = pred.site
         var p2 = site
         var p3 = next.site
