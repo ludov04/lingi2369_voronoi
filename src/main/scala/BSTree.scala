@@ -266,8 +266,8 @@ object Tree {
       case Arc(valA, Some(pred), Some(next), _) => {
         tree match {
           case v: Leaf => v
-          case Node(left, value, right, parent) if breakPoint((a.site, next.site)).x < value.sites.x => search(a, left)
-          case Node(left, value, right, parent) if breakPoint((pred.site, a.site)).x > value.sites.x => search(a, right)
+          case Node(left, value, right, parent) if breakPoint((a.site, next.site)).x <= value.sites.x => search(a, left)
+          case Node(left, value, right, parent) if breakPoint((pred.site, a.site)).x >= value.sites.x => search(a, right)
         }
       }
     }
