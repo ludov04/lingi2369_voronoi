@@ -289,15 +289,35 @@ object Tree {
         tree match {
           case v: Leaf => {
             if(v.value != a) println("find a wrong arc : other")
+            else println("OK-----------")
             v
           }
-          case Node(left, value, right, parent) if (round(breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x)/2) < round(value.sites.x) => search(a, left)(o)
-          case Node(left, value, right, parent) if (round(breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x)/2) == round(value.sites.x) => {
-            println("equal")
+          case Node(left, value, right, parent) if value.sites._1 == pred.site && value.sites._2 == a.site => {
+            println(value.sites.toString())
+            println("XY == PA")
+            search(a, right)(o)
+          }
+          case Node(left, value, right, parent) if value.sites._1 == a.site && value.sites._2 == next.site => {
+            println(value.sites.toString())
+            println("XY == AN")
+            search(a, left)(o)
+          }
+          case Node(left, value, right, parent) if round(breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x/2) < round(value.sites.x) => {
+            println(value.sites.toString())
+            println("PAN < XY")
+            search(a, left)(o)
+          }
+          case Node(left, value, right, parent) if round(breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x/2) == round(value.sites.x) => {
+            println(value.sites.toString())
+            println("PAN == XY")
             if(value.sites._2 == a.site) search(a, right)(o)
             else search(a, left)(o)
           }
-          case Node(left, value, right, parent) => search(a, right)(o)
+          case Node(left, value, right, parent) => {
+            println(value.sites.toString())
+            println("go right (default)")
+            search(a, right)(o)
+          }
         }
       }
     }
