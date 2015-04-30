@@ -110,7 +110,7 @@ class Fortune {
           if (l.parent.right == l) {
             l.parent.value.edge
           } else {
-            val tmp = Tree.findRight(l.parent).value.edge
+            val tmp = Tree.findLeft(l.parent).value.edge
             if(tmp.origin == null) tmp
             else tmp.twin
           }
