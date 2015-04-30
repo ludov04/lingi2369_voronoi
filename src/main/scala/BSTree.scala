@@ -291,8 +291,8 @@ object Tree {
             if(v.value != a) println("find a wrong arc : other")
             v
           }
-          case Node(left, value, right, parent) if (round(breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x)/2) < round(value.sites.x) => search(a, left)(o)
-          case Node(left, value, right, parent) if (round(breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x)/2) == round(value.sites.x) => {
+          case Node(left, value, right, parent) if round((breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x)/2) < round(value.sites.x) => search(a, left)(o)
+          case Node(left, value, right, parent) if round((breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x)/2) == round(value.sites.x) => {
             println("equal")
             if(value.sites._2 == a.site) search(a, right)(o)
             else search(a, left)(o)
