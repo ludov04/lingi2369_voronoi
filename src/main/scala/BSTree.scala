@@ -93,7 +93,7 @@ case class Node(var left: BSTree, value: SiteTuple, var right: BSTree, var paren
 // class Tree(var root : BSTree) {
 object Tree {
 
-  def removeArcNode(x: Leaf, edge: HalfEdge): BSTree ={
+  def removeArcNode(x: Leaf, edge: HalfEdge, root: BSTree): BSTree ={
     x match {
       case Leaf(value, parent) if parent == null => {
         val emptyT = new EmptyT()
@@ -118,11 +118,11 @@ object Tree {
               parentN match {
                 case Node(leftPN, valuePN, rightPN, parentPN) if leftPN == parentL => {
                   parentN.left = rightN
-                  parentN //TODO : determine what to return exactly
+                  root
                 }
                 case Node(leftPN, valuePN, rightPN, parentPN) => {
                   parentN.right = rightN
-                  parentN //TODO : determine what to return exactly
+                  root
 
                 }
               }
@@ -139,11 +139,11 @@ object Tree {
               parentN match {
                 case Node(leftPN, valuePN, rightPN, parentPN) if leftPN == parentL => {
                   parentN.left = leftN
-                  parentN //TODO : determine what to return exactly
+                  root
                 }
                 case Node(leftPN, valuePN, rightPN, parentPN) => {
                   parentN.right = leftN
-                  parentN //TODO : determine what to return exactly
+                  root
 
                 }
               }

@@ -137,7 +137,7 @@ class Fortune {
         //Handle suppression in the tree
         a match {
           case Arc(site, Some(pred), Some(next), event) =>
-            Tree.removeArcNode(l, newEdge)
+            tree = Tree.removeArcNode(l, newEdge, tree)
 
             q = q.filter {
               case CircleEvent(b, _) => b.site != pred.site && (b.site != next.site)
