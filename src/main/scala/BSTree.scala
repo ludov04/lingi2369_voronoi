@@ -23,7 +23,7 @@ class NodeOrdering(y : Double) extends Ordering[ArcNode] {
   implicit def breakPoint(sites : (Coordinate, Coordinate)): Coordinate = {
     val a = (1/(sites._1.y-y))-(1/(sites._2.y-y))
     val b = (-2*sites._1.x/(sites._1.y-y))+(2*sites._2.x/(sites._2.y-y))
-    val c = (Math.pow(sites._1.x,2)/(sites._1.y-y))-(Math.pow(sites._2.x,2)/(sites._2.y-y))
+    val c = (Math.pow(sites._1.x,2)/(sites._1.y-y))-(Math.pow(sites._2.x,2)/(sites._2.y-y))+sites._1.y-sites._2.y
     val delta = Math.pow(b, 2) - (4*a*c)
     val s1 = (-b-Math.sqrt(delta))/(2*a)
     val s2 = (-b+Math.sqrt(delta))/(2*a)
@@ -131,7 +131,10 @@ object Tree {
             if(parentN == null) leftN
             else {
               val rightBound = findRight(parentN)
-              if(rightBound != null) rightBound.value.sites = (rightBound.value.sites._1, leftN.getRightMost.value.site)
+              if(rightBound != null) {
+                rightBound.value.sites = (rightBound.value.sites._1, leftN.getRightMost.value.site)
+                rightBound.value.edge = edge
+              }
               parentN match {
                 case Node(leftPN, valuePN, rightPN, parentPN) if leftPN == parentL => {
                   parentN.left = leftN
