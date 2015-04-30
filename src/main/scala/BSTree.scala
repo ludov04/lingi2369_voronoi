@@ -59,16 +59,15 @@ object testrun {
 
 sealed trait BSTree {
   def value : ArcNode
-  def parent : Node
+  var parent : Node
   def toList: List[ArcNode]
   def getLeftMost : Leaf
   def getRightMost : Leaf
   def isEmpty : Boolean
 }
 
-case class EmptyT() extends BSTree {
+case class EmptyT(var parent: Node = null) extends BSTree {
   def value = null
-  def parent = null
   def toList = Nil
   def getLeftMost = null
   def getRightMost = null
@@ -109,7 +108,10 @@ object Tree {
 
         parentL match {
           case Node(leftN, valueN, rightN, parentN) if leftN == x => {
-            if(parentN == null) rightN
+            if(parentN == null) {
+              rightN.parent = null
+              rightN
+            }
             else {
               val leftBound = findLeft(parentN)
               if(leftBound != null) {
@@ -119,10 +121,12 @@ object Tree {
               parentN match {
                 case Node(leftPN, valuePN, rightPN, parentPN) if leftPN == parentL => {
                   parentN.left = rightN
+                  rightN.parent = parentN
                   root
                 }
                 case Node(leftPN, valuePN, rightPN, parentPN) => {
                   parentN.right = rightN
+                  rightN.parent = parentN
                   root
 
                 }
@@ -130,7 +134,10 @@ object Tree {
             }
           }
           case Node(leftN, valueN, rightN, parentN) => {
-            if(parentN == null) leftN
+            if(parentN == null) {
+              leftN.parent = null
+              leftN
+            }
             else {
               val rightBound = findRight(parentN)
               if(rightBound != null) {
@@ -140,10 +147,12 @@ object Tree {
               parentN match {
                 case Node(leftPN, valuePN, rightPN, parentPN) if leftPN == parentL => {
                   parentN.left = leftN
+                  leftN.parent = parentN
                   root
                 }
                 case Node(leftPN, valuePN, rightPN, parentPN) => {
                   parentN.right = leftN
+                  leftN.parent = parentN
                   root
 
                 }
