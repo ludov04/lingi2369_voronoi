@@ -41,7 +41,7 @@ class Fortune {
     val allPoints = multipointV.union(multipoint)
     val env = allPoints.getEnvelopeInternal
     val treeL = tree.toList
-    val ord = new NodeOrdering(env.getMinY-10)
+      val ord = new NodeOrdering(env.getMinY-10)
     treeL.foreach {
       case p : SiteTuple => {
         //val (p1, p2) = p.sites
