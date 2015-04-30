@@ -27,12 +27,13 @@ class NodeOrdering(y : Double) extends Ordering[ArcNode] {
     val delta = Math.pow(b, 2) - (4*a*c)
     val s1 = (-b-Math.sqrt(delta))/(2*a)
     val s2 = (-b+Math.sqrt(delta))/(2*a)
+    //println(s1.toString() + " -- " + s2.toString())
     if(sites._1.y > sites._2.y){
-      val sy = Math.pow(s1-sites._1.x, 2)/(2*(sites._1.y-y))+y
-      new Coordinate(s1, sy)
+      val sy = Math.pow(Math.min(s1, s2)-sites._1.x, 2)/(2*(sites._1.y-y))+y
+      new Coordinate(Math.min(s1, s2), sy)
     } else {
-      val sy = Math.pow(s2-sites._1.x, 2)/(2*(sites._1.y-y))+y
-      new Coordinate(s2, sy)
+      val sy = Math.pow(Math.max(s1, s2)-sites._1.x, 2)/(2*(sites._1.y-y))+y
+      new Coordinate(Math.max(s1, s2), sy)
     }
   }
   def compare(a: ArcNode, b : ArcNode): Int = {
