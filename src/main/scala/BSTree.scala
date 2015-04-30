@@ -191,7 +191,7 @@ object Tree {
    * @param tree
    * @return the leaf that were replaced
    */
-  def addParabola(a : Arc, h: HalfEdge, tree: BSTree)(implicit o : NodeOrdering) : (Leaf, BSTree) = {
+  def addParabola(a : Arc, tree: BSTree)(implicit o : NodeOrdering) : (Leaf, BSTree) = {
     val node = search(a.site, tree)
 
     val leftArc = node.value.copy(next = Some(a))
@@ -203,6 +203,8 @@ object Tree {
     val leftLeaf = Leaf(leftArc, null)
     val newLeaf = Leaf(a, null)
     val rightLeaf = Leaf(rightArc, null)
+
+    val (h,_) = createEdge((a.pred.get.site, a.site))
 
     val sub = Node(leftLeaf, SiteTuple((leftArc.site, a.site), h), newLeaf, null )
     leftLeaf.parent = sub
@@ -269,9 +271,12 @@ object Tree {
       case Arc(_, _, None, _) => tree.getRightMost
       case Arc(valA, Some(pred), Some(next), _) => {
         tree match {
-          case v: Leaf => v
-          case Node(left, value, right, parent) if breakPoint((a.site, next.site)).x <= value.sites.x => search(a, left)
-          case Node(left, value, right, parent) if breakPoint((pred.site, a.site)).x >= value.sites.x => search(a, right)
+          case v: Leaf => {
+            if(v.value != a) println("find a wrong arc")
+            v
+          }
+          case Node(left, value, right, parent) if (breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x)/2 < value.sites.x => search(a, left)(o)
+          case Node(left, value, right, parent) => search(a, right)(o)
         }
       }
     }

@@ -41,8 +41,16 @@ class Fortune {
     val allPoints = multipointV.union(multipoint)
     val env = allPoints.getEnvelopeInternal
     val treeL = tree.toList
-      val ord = new NodeOrdering(env.getMinY-10)
-    treeL.foreach {
+    val ord = new NodeOrdering(env.getMinY-10)
+
+    edgeList.edges.foreach(edge => {
+      if(edge.origin == null){
+        val orig = new Vertex(ord.breakPoint(edge.sites), edge)
+        edge.origin = orig
+      }
+    })
+
+    /*treeL.foreach {
       case p : SiteTuple => {
         //val (p1, p2) = p.sites
         //val a = (p1.x - p2.x) / (p2.y - p1.y)
@@ -59,7 +67,7 @@ class Fortune {
           }
         }
       }
-    }
+    }*/
 
     createLinesFromEdges
   }
@@ -108,7 +116,7 @@ class Fortune {
           else tmp
         }
 
-        val (centerEdge, newEdge) = edgeList.createEdge
+        val (centerEdge, newEdge) = edgeList.createEdge((a.pred.get.site, a.next.get.site))
         val vertex = Vertex(c, centerEdge)
         edgeList.vertices += vertex
 
@@ -132,7 +140,7 @@ class Fortune {
             Tree.removeArcNode(l, newEdge)
 
             q = q.filter {
-              case CircleEvent(b, _) => b.site == pred.site || (b.site == next.site)
+              case CircleEvent(b, _) => b.site != pred.site && (b.site != next.site)
               case _ => true
             }
 
@@ -154,10 +162,10 @@ class Fortune {
     else {
 
       //Create Half-Edges
-      val (h1, h2) = edgeList.createEdge
+      //val (h1, h2) = edgeList.createEdge
 
 
-      val (old, newTree) = Tree.addParabola(newArc, h1, tree)(new NodeOrdering(p.y)) // create and add the subtree, link the half-edge with internal nodes, link newArc with pred/next
+      val (old, newTree) = Tree.addParabola(newArc, tree)(new NodeOrdering(p.y)) // create and add the subtree, link the half-edge with internal nodes, link newArc with pred/next
       tree = newTree
       old.value.event.foreach(toRemove => q = q.filterNot(event => toRemove == event)) // remove false alarm
 

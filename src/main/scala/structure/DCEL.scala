@@ -19,12 +19,13 @@ object DCEL {
                       var twin: HalfEdge,
                       var face : Face,
                       var next : HalfEdge,
-                      var prev: HalfEdge)
+                      var prev: HalfEdge,
+                      sites: (Coordinate, Coordinate))
 
 
-  def createEdge : (HalfEdge, HalfEdge) = {
-    val h1 = HalfEdge(null, null, null, null, null)
-    val h2 = HalfEdge(null, null, null, null, null)
+  def createEdge(sites: (Coordinate, Coordinate)) : (HalfEdge, HalfEdge) = {
+    val h1 = HalfEdge(null, null, null, null, null, sites)
+    val h2 = HalfEdge(null, null, null, null, null, sites)
     h1.twin = h2
     h2.twin = h1
     edges += h1
