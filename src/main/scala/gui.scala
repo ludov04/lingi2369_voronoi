@@ -48,7 +48,6 @@ class Gui(val content : Drawer) {
 
     autoStepButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        DCEL.clear()
         var q = 1
         while(q != 0) {
           val result = fortuneS.runStep(points.toArray, nStep)
@@ -60,7 +59,6 @@ class Gui(val content : Drawer) {
 
     stepButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        DCEL.clear()
         val result = fortuneS.runStep(points.toArray, nStep)
         nStep += 1
         content.refresh(points.toArray, result._2)
@@ -70,7 +68,6 @@ class Gui(val content : Drawer) {
     fortuneButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
         val fortune = new Fortune
-        DCEL.clear()
         content.refresh(fortune.run(points.toArray))
       }
     })
@@ -96,7 +93,6 @@ class Gui(val content : Drawer) {
         fortuneS = new Fortune
         nStep = 0
         points.clear()
-        DCEL.clear()
         content.refresh(points.toArray, fact.createGeometryCollection(Array[Geometry]()))
       }
     })

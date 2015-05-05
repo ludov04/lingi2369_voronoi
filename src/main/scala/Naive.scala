@@ -15,7 +15,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.language.implicitConversions
 
 
-class Naive(points: Array[Coordinate]) extends Voronoi {
+class Naive(val points: Array[Coordinate]) extends Voronoi {
 
   val n : Int = points.length
   val segmentMatrix: Array[Array[LineSegment]] = ofDim[LineSegment](n, n)
@@ -85,7 +85,7 @@ class Naive(points: Array[Coordinate]) extends Voronoi {
 
   }
 
-  def run() = {
+  def run() : GeometryCollection = {
 
     val cells = new ArrayBuffer[Geometry]()
     val expandBy: Double = Math.max(envelope.getWidth, envelope.getHeight)

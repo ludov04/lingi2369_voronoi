@@ -1,7 +1,7 @@
 
 import com.vividsolutions.jts.geom._
 
-import structure.DCEL
+import structure._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -19,7 +19,7 @@ case class SiteEvent(site: Coordinate, y: Double) extends Event
 class Fortune {
 
   var q = new mutable.PriorityQueue[Event]()(Ordering.by(_.y))
-  val edgeList = DCEL
+  val edgeList = new DCEL()
   import edgeList._
   var tree : BSTree = EmptyT()
   val factory = new GeometryFactory()
@@ -63,7 +63,7 @@ class Fortune {
       connectToBox(env, env.getMinY-100)
 
       createLinesFromEdges
-      (999999d, createLinesFromEdges)
+      (q.size, createLinesFromEdges)
     }
   }
 
@@ -237,7 +237,7 @@ class Fortune {
       //val (h1, h2) = edgeList.createEdge
 
 
-      val (old, newTree) = Tree.addParabola(newArc, tree)(new NodeOrdering(p.y)) // create and add the subtree, link the half-edge with internal nodes, link newArc with pred/next
+      val (old, newTree) = Tree.addParabola(newArc, tree, edgeList)(new NodeOrdering(p.y)) // create and add the subtree, link the half-edge with internal nodes, link newArc with pred/next
       tree = newTree
       old.value.event.foreach(toRemove => q = q.filterNot(event => toRemove == event)) // remove false alarm
 
