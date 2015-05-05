@@ -103,35 +103,49 @@ class Fortune {
     val allPoints = multipointV.union(multipoint)
     val env = allPoints.getEnvelopeInternal
     val treeL = tree.toList
-    val ord = new NodeOrdering(env.getMinY-100)
 
-    edgeList.edges.foreach(edge => {
-      if(edge.origin == null){
-        val orig = new Vertex(ord.breakPoint((edge.sites._1, edge.sites._2)), edge)
-        edge.origin = orig
-      }
-    })
 
-    /*treeL.foreach {
-      case p : SiteTuple => {
-        //val (p1, p2) = p.sites
-        //val a = (p1.x - p2.x) / (p2.y - p1.y)
-        //val b = (Math.pow(p2.y, 2) + Math.pow(p2.x, 2) - Math.pow(p1.x, 2) - Math.pow(p1.y, 2)) / (2 * (p2.y - p1.y))
-
-        p.edge match {
-          case HalfEdge(origin, _, _, _, _) if origin == null => {
-            val orig = new Vertex(ord.breakPoint(p.sites), p.edge)
-            p.edge.origin = orig
-          }
-          case _ => {
-            val orig = new Vertex(ord.breakPoint(p.sites), p.edge.twin)
-            p.edge.twin.origin = orig
-          }
-        }
-      }
-    }*/
+    connectToBox(env, env.getMinY-100)
 
     createLinesFromEdges
+  }
+
+
+  def distance(x1: Coordinate, x2: Coordinate): Double = {
+    Math.sqrt(Math.pow(x1.x - x2.x, 2) + Math.pow(x1.y - x2.y, 2))
+  }
+  def connectToBox(box: Envelope, y: Double) = {
+    def computeIntersections(p1 : Coordinate, p2 : Coordinate, env : Envelope) : (Coordinate, Coordinate) = {
+      if (p2.y == p1.y){
+        val b = (p1.x + p2.x)/2
+        (new Coordinate(b, env.getMinY), new Coordinate(b, env.getMaxY))
+      } else {
+        val a = (p1.x - p2.x) / (p2.y - p1.y)
+        val b = (Math.pow(p2.y, 2) + Math.pow(p2.x, 2) - Math.pow(p1.x, 2) - Math.pow(p1.y, 2)) / (2 * (p2.y - p1.y))
+        (new Coordinate(env.getMinX, (a*env.getMinX)+b), new Coordinate(env.getMaxX, (a*env.getMaxX)+b))
+      }
+    }
+    def choose(tuple: (Coordinate, Coordinate), x1: Coordinate, x2: Coordinate) = {
+      val breakpoint = new NodeOrdering(y).breakPoint(tuple)
+      val x1Distance = distance(x1, breakpoint)
+      val x2Distance = distance(x2, breakpoint)
+
+      if (x1Distance <= x2Distance) x1
+      else x2
+    }
+    tree.toList.foreach {
+      case node : SiteTuple => {
+        val sites = node.sites
+
+        val (x1, x2) = computeIntersections(sites._1, sites._2, box)
+        val inter = choose(sites, x1, x2)
+        if(node.edge.origin == null) {
+          val orig = new Vertex(inter,node.edge)
+          node.edge.origin = orig
+        }
+
+      }
+    }
   }
 
   def getPolygons : List[Polygon] = {
