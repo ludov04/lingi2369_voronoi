@@ -22,8 +22,9 @@ class Gui(val content : Drawer) {
   val x = 1000
   val y = 600
   var nStep = 0
-  var fortuneS = new Fortune
+  var fortuneS = new Fortune(points.toArray)
   var q = 1
+
 
   def show() {
     val frame = new JFrame()
@@ -47,9 +48,10 @@ class Gui(val content : Drawer) {
     buttons.add(clearButton)
     frame.getContentPane.add(buttons, BorderLayout.SOUTH)
 
+
     stepButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        val result = fortuneS.runStep(points.toArray, nStep)
+        val result = fortuneS.runStep(nStep)
         nStep += 1
         content.refresh(points.toArray, result._2)
       }
@@ -64,8 +66,8 @@ class Gui(val content : Drawer) {
 
     fortuneButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        val fortune = new Fortune
-        content.refresh(fortune.run(points.toArray))
+        val fortune = new Fortune(points.toArray)
+        content.refresh(fortune.run())
       }
     })
 
@@ -87,7 +89,7 @@ class Gui(val content : Drawer) {
 
     clearButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        fortuneS = new Fortune
+        fortuneS = new Fortune(points.toArray)
         nStep = 0
         points.clear()
         content.refresh(points.toArray, fact.createGeometryCollection(Array[Geometry]()))

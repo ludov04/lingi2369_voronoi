@@ -10,22 +10,14 @@ import scala.collection.mutable.ArrayBuffer
  * Created by ludov on 27/04/15.
  */
 
-trait Event {
-  def y : Double
-}
-
-case class CircleEvent(a: Arc, y: Double) extends Event
-case class SiteEvent(site: Coordinate, y: Double) extends Event
-
-class Fortune {
+class Fortune(val points: Array[Coordinate]) extends Voronoi {
 
   var q = new mutable.PriorityQueue[Event]()(Ordering.by(_.y))
   val edgeList = new DCEL()
   import edgeList._
   var tree : BSTree = EmptyT()
-  val factory = new GeometryFactory()
 
-  def runStep(points: Array[Coordinate], nStep: Int) : (Int, MultiLineString) = {
+  def runStep(nStep: Int) : (Int, MultiLineString) = {
     if(nStep == 0) {
       for(i <- 0 until points.length){
         q.enqueue(new SiteEvent(points(i), points(i).y))
@@ -82,7 +74,7 @@ class Fortune {
     factory.createLineString(parabola.toArray)
   }
 
-  def run(points: Array[Coordinate]) = {
+  def run() = {
     for(i <- 0 until points.length){
       q.enqueue(new SiteEvent(points(i), points(i).y))
     }
