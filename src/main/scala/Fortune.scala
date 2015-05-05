@@ -254,7 +254,9 @@ class Fortune {
       }
     }
   }
-
+  def round(x: Double) = {
+    Math.floor(x * 100) / 100
+  }
   def computeCenter(a: Arc) : Option[Coordinate] = {
     a match {
       case Arc(site, Some(pred), Some(next), event) => {
