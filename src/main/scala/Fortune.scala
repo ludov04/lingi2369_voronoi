@@ -12,9 +12,9 @@ import scala.collection.mutable.ArrayBuffer
 
 class Fortune(val points: Array[Coordinate]) extends Voronoi {
 
+  import Fortune._
   var q = new mutable.PriorityQueue[Event]()(Ordering.by(_.y))
   val edgeList = new DCEL()
-  import edgeList._
   var tree : BSTree = EmptyT()
 
   def runStep(nStep: Int) : (Int, MultiLineString) = {
@@ -263,6 +263,11 @@ class Fortune(val points: Array[Coordinate]) extends Voronoi {
   def round(x: Double) = {
     Math.floor(x * 100) / 100
   }
+
+
+}
+
+object Fortune {
   def computeCenter(a: Arc) : Option[Coordinate] = {
     a match {
       case Arc(site, Some(pred), Some(next), event) => {
@@ -295,5 +300,4 @@ class Fortune(val points: Array[Coordinate]) extends Voronoi {
       case _ => None
     }
   }
-
 }

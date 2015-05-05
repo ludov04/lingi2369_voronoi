@@ -83,6 +83,7 @@ class Gui(val content : Drawer) {
         val n = 100
         val newP = GenPoints.generate(x, y, n)
         for(i <- 0 until n) points += newP(i)
+        fortuneS = new Fortune(points.toArray)
         content.refresh(points.toArray)
       }
     })
@@ -101,6 +102,7 @@ class Gui(val content : Drawer) {
 
       override def mouseClicked(e: MouseEvent): Unit = {
         points += new Coordinate(e.getX, e.getY)
+        fortuneS = new Fortune(points.toArray)
         content.refresh(points.toArray)
       }
 
