@@ -26,6 +26,7 @@ class Gui(val content : Drawer) {
   var q = 1
 
 
+
   def show() {
     val frame = new JFrame()
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE)
@@ -49,32 +50,41 @@ class Gui(val content : Drawer) {
     frame.getContentPane.add(buttons, BorderLayout.SOUTH)
 
 
-    stepButton.addActionListener(new ActionListener {
+    val timer = new Timer(50, null)
+    val stepListener = new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        val result = fortuneS.runStep(nStep)
-        nStep += 1
-        content.refresh(points.toArray, result._2)
+        val result = if(fortuneS.runStep()) {
+          timer.stop()
+          fortuneS.computeDiagram()
+        }
+        else fortuneS.getBeachLine
+        content.refresh(points.toArray,  result )
+
       }
-    })
+    }
+
+    timer.addActionListener(stepListener)
+    stepButton.addActionListener(stepListener)
+
+
 
     autoStepButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        val timer = new Timer(50, stepButton.getActionListeners()(0))
-        timer.start();
+        timer.start()
       }
     })
 
     fortuneButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
         val fortune = new Fortune(points.toArray)
-        content.refresh(fortune.run())
+        content.refresh(fortune.run)
       }
     })
 
     naiveButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
         val naive = new Naive(points.toArray)
-        content.refresh(naive.run())
+        content.refresh(naive.run)
       }
     })
 

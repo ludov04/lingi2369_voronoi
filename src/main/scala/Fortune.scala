@@ -1,5 +1,6 @@
 
 
+import _root_.util.Util
 import com.vividsolutions.jts.geom._
 
 import structure._
@@ -10,174 +11,81 @@ import scala.collection.mutable.ArrayBuffer
  * Created by ludov on 27/04/15.
  */
 
+/**
+ * A class that implement Fortune's algorithm to compute a Voronoi Diagram
+ * @param points The set of points (sites) for which the Voronoi Diagram is computed
+ */
 class Fortune(val points: Array[Coordinate]) extends Voronoi {
 
   import Fortune._
+
+  /**
+   * Priority Queue containing the sites and circle event
+   * Higher y have higher priority
+   */
   var q = new mutable.PriorityQueue[Event]()(Ordering.by(_.y))
+  /**
+   * Doubly connected edge list structure to store the internal representation of the Voronoi
+   * http://en.wikipedia.org/wiki/Doubly_connected_edge_list
+   */
   val edgeList = new DCEL()
+
+  /**
+   * A Binary Tree structure to store the internal representation of the beachline
+   */
   var tree : BSTree = EmptyT()
 
-  def runStep(nStep: Int) : (Int, MultiLineString) = {
-    if(nStep == 0) {
-      for(i <- 0 until points.length){
-        q.enqueue(new SiteEvent(points(i), points(i).y))
-      }
-    }
-    if(!q.isEmpty){
+  /**
+   * Enqueue the site event on initialisation
+   */
+  for(i <- 0 until points.length){
+    q.enqueue(new SiteEvent(points(i), points(i).y))
+  }
+
+  /**
+   * The y coordinate of the sweepline on the last iteration
+   */
+  var lastY = 0d
+
+  /**
+   *  Run a single iteration of the algorithm, useful for debugging or to show the progess on some UI
+   * @return true if the queue is Empty i.e. if there is no more iteration to run
+   *         false if there is still some events of the queue i.e. the algorithm is not finished
+   */
+  def runStep() : Boolean = {
+    if(q.nonEmpty){
       val event = q.dequeue()
       event match {
         case e : SiteEvent => handleSiteEvent(e.site)
-        case e : CircleEvent => {
-          //Tree.printTree(tree)
-          //println(e.a.pred.get.site + " -- " + e.a.site + " -- " + e.a.next.get.site)
-          handleCircleEvent(Tree.search(e.a,tree)(new NodeOrdering(e.y)), e.y)
-        }
-      }
-      val beachline = ArrayBuffer[LineString]()
-      var currArc = Option(tree.getLeftMost.value)
-      while(currArc.isDefined){
-        beachline += getParabola(currArc.get, event.y)
-        currArc = currArc.get.next
-      }
-      beachline += factory.createLineString(Array(new Coordinate(0, event.y), new Coordinate(1000, event.y)))
-      (q.size, factory.createMultiLineString(beachline.toArray))
-    } else {
-      println("ok")
-      val multipoint = factory.createMultiPoint(points)
-      val pointsV = edgeList.vertices.map(v => new Coordinate(v.point.x, v.point.y))
-      val multipointV = factory.createMultiPoint(pointsV.toArray)
-      val allPoints = multipointV.union(multipoint)
-      val env = allPoints.getEnvelopeInternal
-      val expandBy: Double = Math.max(env.getWidth, env.getHeight)
-      env.expandBy(expandBy)
-      val treeL = tree.toList
-
-
-      connectToBox(env, env.getMinY-100)
-
-      createLinesFromEdges
-      (q.size, createLinesFromEdges)
-    }
-  }
-
-  def getParabola(currArc: Arc, yd: Double): LineString = {
-    val parabola = ArrayBuffer[Coordinate]()
-    val p = currArc.site.y - yd
-    if(p == 0){
-        parabola ++= Array(currArc.site, new Coordinate(currArc.site.x, yd))
-    } else {
-      for (x <- 0 until 1000) {
-        val y = Math.pow((x) - currArc.site.x, 2) / (2 * p) + currArc.site.y - (p / 2)
-        parabola += new Coordinate(x, y)
-      }
-    }
-    factory.createLineString(parabola.toArray)
-  }
-
-  def run() = {
-    for(i <- 0 until points.length){
-      q.enqueue(new SiteEvent(points(i), points(i).y))
-    }
-    var lastY : Double = 0
-    while(!q.isEmpty){
-      val event = q.dequeue()
-      event match {
-        case e : SiteEvent => handleSiteEvent(e.site)
-        case e : CircleEvent =>{
-          //Tree.printTree(tree)
-          //println(e.a.pred.get.site + " -- " + e.a.site + " -- " + e.a.next.get.site)
-          handleCircleEvent(Tree.search(e.a,tree)(new NodeOrdering(e.y)), e.y)
-        }
+        case e : CircleEvent => handleCircleEvent(Tree.search(e.a,tree)(new NodeOrdering(e.y)), e.y)
       }
       lastY = event.y
-    }
-    val multipoint = factory.createMultiPoint(points)
-    val pointsV = edgeList.vertices.map(v => new Coordinate(v.point.x, v.point.y))
-    val multipointV = factory.createMultiPoint(pointsV.toArray)
-    val allPoints = multipointV.union(multipoint)
-    val env = allPoints.getEnvelopeInternal
-    val expandBy: Double = Math.max(env.getWidth, env.getHeight)
-    env.expandBy(expandBy)
-    val treeL = tree.toList
-
-
-    connectToBox(env, lastY - 10)
-
-    createLinesFromEdges
-  }
-
-
-  def distance(x1: Coordinate, x2: Coordinate): Double = {
-    Math.sqrt(Math.pow(x1.x - x2.x, 2) + Math.pow(x1.y - x2.y, 2))
-  }
-  def connectToBox(box: Envelope, y: Double) = {
-    def computeIntersections(p1 : Coordinate, p2 : Coordinate, env : Envelope) : (Coordinate, Coordinate) = {
-      if (p2.y == p1.y){
-        val b = (p1.x + p2.x)/2
-        (new Coordinate(b, env.getMinY), new Coordinate(b, env.getMaxY))
-      } else {
-        val a = (p1.x - p2.x) / (p2.y - p1.y)
-        val b = (Math.pow(p2.y, 2) + Math.pow(p2.x, 2) - Math.pow(p1.x, 2) - Math.pow(p1.y, 2)) / (2 * (p2.y - p1.y))
-        (new Coordinate(env.getMinX, (a*env.getMinX)+b), new Coordinate(env.getMaxX, (a*env.getMaxX)+b))
-      }
-    }
-    def choose(tuple: (Coordinate, Coordinate), x1: Coordinate, x2: Coordinate) = {
-      val breakpoint = new NodeOrdering(y).breakPoint(tuple)
-      val x1Distance = distance(x1, breakpoint)
-      val x2Distance = distance(x2, breakpoint)
-
-      if (x1Distance <= x2Distance) x1
-      else x2
-    }
-    tree.toList.foreach {
-      case node : SiteTuple => {
-        val sites = node.sites
-
-        val (x1, x2) = computeIntersections(sites._1, sites._2, box)
-        val inter = choose(sites, x1, x2)
-        if(node.edge.origin == null) {
-          val orig = new Vertex(inter,node.edge)
-          node.edge.origin = orig
-        }
-
-      }
-    }
-  }
-
-  def getPolygons : List[Polygon] = {
-    val polygons = edgeList.faces.map { face =>
-      val start = face.edge.origin
-      var edge = face.edge.next
-      val points = ArrayBuffer[Coordinate](start.point)
-      while (start != edge.origin) {
-        points += edge.origin.point
-        edge = edge.next
-      }
-
-      factory.createPolygon(points.toArray)
-    }
-    polygons.toList
+      q.isEmpty
+    } else true
 
   }
 
-  def createLinesFromEdges : MultiLineString = {
-    val lines = edgeList.edges.filter { edge =>
-      edge.origin != null && edge.twin.origin != null
-    }.map { edge =>
-        val p1 = edge.origin.point
-        val p2 = edge.twin.origin.point
-
-        factory.createLineString(Array(p1, p2))
-      }.toArray
-
-    factory.createMultiLineString(lines)
+  /**
+   * Run all the iteration until the queue is empty and compute the diagram from the doubly-connected edge list and a bounding box
+   * @return
+   */
+  def run = {
+    while(!runStep()) { }
+    computeDiagram()
   }
 
+
+  /**
+   * Handle a circle event
+   * see Computational geometry De Berg, Mark de Berg, Otfried Cheong, Marc van Kreveld, Mark Overmars, 157-158, 2008
+   * @param l the leaf of tree representing the arc that will disappear
+   * @param sweepY the y coordinate of the sweepline
+   */
   def handleCircleEvent(l : Leaf, sweepY: Double) = {
     val a = l.value
     val center = computeCenter(a)
-    center match {
-      case Some(c) => {
+    center.foreach { c =>
+
         //Handle half edges
         val rightEdge = Tree.findRight(l).value.edge
         val leftEdge = Tree.findLeft(l).value.edge
@@ -211,24 +119,22 @@ class Fortune(val points: Array[Coordinate]) extends Voronoi {
         }
 
         a.pred.foreach(checkCircleEvent(_, sweepY)) //Check the triple of consecutive arcs where the a is the right arc
-        //println("check a.pred : " + a.pred.get.pred.get.site + " -- " + a.pred.get.site + " -- " + a.pred.get.next.get.site)
         a.next.foreach(checkCircleEvent(_, sweepY)) //Check the triple of consecutive arcs where the a is the left arc
-        //println("check a.next : " + a.next.get.pred.get.site + " -- " + a.next.get.site + " -- " + a.next.get.next.get.site)
 
-      }
     }
   }
 
+  /**
+   * Handle a site event
+   * see Computational geometry De Berg, Mark de Berg, Otfried Cheong, Marc van Kreveld, Mark Overmars, 157-158, 2008
+   * @param p the site at which the event is occuring
+   */
   def handleSiteEvent(p: Coordinate) = {
     val newArc = new Arc(p, None, None, None)
     if (tree.isEmpty) {
       tree = Leaf(newArc, null)
     }
     else {
-
-      //Create Half-Edges
-      //val (h1, h2) = edgeList.createEdge
-
 
       val (old, newTree) = Tree.addParabola(newArc, tree, edgeList)(new NodeOrdering(p.y)) // create and add the subtree, link the half-edge with internal nodes, link newArc with pred/next
       tree = newTree
@@ -239,6 +145,11 @@ class Fortune(val points: Array[Coordinate]) extends Voronoi {
     }
   }
 
+  /**
+   * Check if an arc is going to disappear in the future due to a circle event
+   * @param a the arc to check
+   * @param sweepY the current y coordinate of the sweepline
+   */
   def checkCircleEvent(a : Arc, sweepY : Double) = {
     //check if there is a triple
     //if computeCenter return None, it means that there is no triple
@@ -250,7 +161,7 @@ class Fortune(val points: Array[Coordinate]) extends Voronoi {
         val ord = new NodeOrdering(center.y - r)
         val b1 = ord.breakPoint((a.pred.get.site, a.site))
         val b2 = ord.breakPoint((a.site, a.next.get.site))
-        if(round(b1.x) == round(b2.x)) {
+        if(Util.round(b1.x) == Util.round(b2.x)) {
           //add event
           val event = CircleEvent(a, center.y - r)
 
@@ -260,17 +171,115 @@ class Fortune(val points: Array[Coordinate]) extends Voronoi {
       }
     }
   }
-  def round(x: Double) = {
-    Math.floor(x * 100) / 100
+
+  /**
+   * Create the segment from an edge list. This assumes that the half-edge in the list
+   * are connected to their twin and their origin
+   * @param edges a list of HalfEdge
+   * @return A GeometryCollection containing all the segment coresponding to edges
+   */
+  def createLinesFromEdges(edges: List[HalfEdge]) : MultiLineString = {
+    val lines = edges.filter { edge =>
+      edge.origin != null && edge.twin.origin != null
+    }.map { edge =>
+      val p1 = edge.origin.point
+      val p2 = edge.twin.origin.point
+
+      factory.createLineString(Array(p1, p2))
+    }.toArray
+
+    factory.createMultiLineString(lines)
   }
 
+  /**
+   * Connect the remaining dangling half-edges to the bounding box to have a true subdivision of the plane
+   * @param box the bounding box
+   * @param y the y coordinate of the sweepline
+   */
+  def connectToBox(box: Envelope, y: Double) = {
+
+    def choose(tuple: (Coordinate, Coordinate), x1: Coordinate, x2: Coordinate) = {
+      val breakpoint = new NodeOrdering(y).breakPoint(tuple)
+      val x1Distance = Util.distance(x1, breakpoint)
+      val x2Distance = Util.distance(x2, breakpoint)
+
+      if (x1Distance <= x2Distance) x1
+      else x2
+    }
+
+    tree.toList.foreach {
+      case node : SiteTuple =>
+        val sites = node.sites
+        val (x1, x2) = computeBisector(sites._1, sites._2, box)
+        val inter = choose(sites, x1, x2)
+        if(node.edge.origin == null) {
+          val orig = new Vertex(inter,node.edge)
+          node.edge.origin = orig
+        }
+    }
+  }
+
+
+  /**
+   * Compute a bounding box, connect the half-edge to it, and compute a GeometryCollection representing the Voronoi Diagram
+   * @return a GeometryCollection representing the Voronoi Diagram
+   */
+  def computeDiagram() : GeometryCollection = {
+    val multipoint = factory.createMultiPoint(points)
+    val pointsV = edgeList.vertices.map(v => new Coordinate(v.point.x, v.point.y))
+    val multipointV = factory.createMultiPoint(pointsV.toArray)
+    val allPoints = multipointV.union(multipoint)
+
+    val env = allPoints.getEnvelopeInternal
+    val expandBy: Double = Math.max(env.getWidth, env.getHeight)
+    env.expandBy(expandBy)
+
+    connectToBox(env, env.getMinY-1000)
+
+    createLinesFromEdges(edgeList.edges.toList)
+  }
+
+  /**
+   *
+   * @return
+   */
+  def getBeachLine : MultiLineString = {
+    val beachline = ArrayBuffer[LineString]()
+    var currArc = Option(tree.getLeftMost.value)
+    while(currArc.isDefined){
+      beachline += getParabola(currArc.get, lastY)
+      currArc = currArc.get.next
+    }
+    beachline += factory.createLineString(Array(new Coordinate(0, lastY), new Coordinate(1000, lastY)))
+    factory.createMultiLineString(beachline.toArray)
+  }
+
+  /**
+   *
+   * @param currArc
+   * @param yd
+   * @return
+   */
+  def getParabola(currArc: Arc, yd: Double): LineString = {
+    val parabola = ArrayBuffer[Coordinate]()
+    val p = currArc.site.y - yd
+    if(p == 0){
+      parabola ++= Array(currArc.site, new Coordinate(currArc.site.x, yd))
+    } else {
+      for (x <- 0 until 1000) {
+        val y = Math.pow(x - currArc.site.x, 2) / (2 * p) + currArc.site.y - (p / 2)
+        parabola += new Coordinate(x, y)
+      }
+    }
+    factory.createLineString(parabola.toArray)
+  }
 
 }
 
 object Fortune {
   def computeCenter(a: Arc) : Option[Coordinate] = {
     a match {
-      case Arc(site, Some(pred), Some(next), event) => {
+      case Arc(site, Some(pred), Some(next), event) =>
         if (next.site == pred.site) {
           return None
         }
@@ -296,8 +305,9 @@ object Fortune {
         val sy = (a1*sx)+b1
 
         Some(new Coordinate(sx, sy))
-      }
       case _ => None
     }
   }
+
+
 }

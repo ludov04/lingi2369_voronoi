@@ -1,6 +1,7 @@
 import com.vividsolutions.jts.geom.Coordinate
 
 import structure._
+import util.Util
 
 /**
  * Created by Fabian on 27-04-15.
@@ -93,7 +94,7 @@ case class Node(var left: BSTree, value: SiteTuple, var right: BSTree, var paren
   def isEmpty = false
 }
 object Tree {
-
+  import Util._
   def removeArcNode(x: Leaf, edge: HalfEdge, root: BSTree): BSTree ={
     x match {
       case Leaf(value, parent) if parent == null => {
@@ -299,9 +300,6 @@ object Tree {
     }
   }
 
-  def round(x: Double) = {
-    Math.floor(x * 100) / 100
-  }
 
   def printTree(tree: BSTree) : Unit = {
     println("==============BEGIN TREE PRINT=====================")
