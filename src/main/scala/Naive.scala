@@ -7,6 +7,7 @@ import java.util.Collection
 import com.vividsolutions.jts.geom._
 import com.vividsolutions.jts.io.WKTReader
 import com.vividsolutions.jts.operation.polygonize.Polygonizer
+import com.vividsolutions.jts.triangulate.DelaunayTriangulationBuilder
 
 import scala.Array._
 import scala.collection.JavaConversions._
@@ -19,7 +20,7 @@ class Naive(points: Geometry) {
   val factory = new GeometryFactory()
   val n : Int = points.getNumGeometries()
   val segmentMatrix: Array[Array[LineSegment]] = ofDim[LineSegment](n, n)
-  val envelope = points.getEnvelopeInternal
+  val envelope = DelaunayTriangulationBuilder.envelope(points.getCoordinates.toList)
 
 
   implicit def envelopeToLinearRing(env : Envelope) : LinearRing = {
@@ -89,8 +90,10 @@ class Naive(points: Geometry) {
   }
 
   def run() = {
+
     val cells = new ArrayBuffer[Geometry]()
-    envelope.expandBy(10)
+    val expandBy: Double = Math.max(envelope.getWidth, envelope.getHeight)
+    envelope.expandBy(expandBy)
     computeSegmentMatrix(envelope)
     for( i <- 0 until n) {
       cells += computeVoronoiCell(i)
@@ -104,9 +107,11 @@ class Naive(points: Geometry) {
 
 object NaiveRun {
   def main(args: Array[String]) {
+    val factory = new GeometryFactory()
+
     val rdr: WKTReader = new WKTReader
     val points = rdr.read("MULTIPOINT ((150 290), (370 120), (100 170), (330 370), (190 60))")
     val naive = new Naive(points)
-    println(naive.run().toText)
+    println(factory.createMultiPoint(naive.run().getCoordinates).toText)
   }
 }
