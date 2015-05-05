@@ -24,7 +24,7 @@ class Fortune {
   var tree : BSTree = EmptyT()
   val factory = new GeometryFactory()
 
-  def runStep(points: Array[Coordinate], nStep: Int) : (Double, Array[Coordinate]) = {
+  def runStep(points: Array[Coordinate], nStep: Int) : (Double, Array[LineString]) = {
     if(nStep == 0) {
       for(i <- 0 until points.length){
         q.enqueue(new SiteEvent(points(i), points(i).y))
@@ -37,11 +37,11 @@ class Fortune {
         case e : CircleEvent => handleCircleEvent(Tree.search(e.a,tree)(new NodeOrdering(e.y)), e.y)
       }
       println(q.size)
-      val beachline = ArrayBuffer[Coordinate]()
+      val beachline = ArrayBuffer[LineString]()
       var currArc = Option(tree.getLeftMost.value)
       while(currArc.isDefined){
         println(currArc.get.site)
-        beachline ++= getParabola(currArc.get, event.y)
+        beachline += getParabola(currArc.get, event.y)
         currArc = currArc.get.next
       }
       (event.y, beachline.toArray)
@@ -50,18 +50,18 @@ class Fortune {
     }
   }
 
-  def getParabola(currArc: Arc, yd: Double): ArrayBuffer[Coordinate] = {
+  def getParabola(currArc: Arc, yd: Double): LineString = {
     val parabola = ArrayBuffer[Coordinate]()
     val p = currArc.site.y - yd
     if(p == 0){
-      
+        parabola ++= Array(currArc.site, new Coordinate(currArc.site.x, yd))
     } else {
       for (x <- 0 until 1000) {
         val y = Math.pow((x) - currArc.site.x, 2) / (2 * p) + currArc.site.y - (p / 2)
         parabola += new Coordinate(x, y)
       }
     }
-    parabola
+    factory.createLineString(parabola.toArray)
   }
 
   def run(points: Array[Coordinate]) = {
