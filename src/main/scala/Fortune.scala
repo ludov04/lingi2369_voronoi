@@ -35,6 +35,7 @@ class Fortune {
       event match {
         case e : SiteEvent => handleSiteEvent(e.site)
         case e : CircleEvent => {
+          Tree.printTree(tree)
           println(e.a.pred.get.site + " -- " + e.a.site + " -- " + e.a.next.get.site)
           handleCircleEvent(Tree.search(e.a,tree)(new NodeOrdering(e.y)), e.y)
         }
@@ -57,12 +58,12 @@ class Fortune {
       val treeL = tree.toList
       val ord = new NodeOrdering(env.getMinY-10)
 
-      edgeList.edges.foreach(edge => {
+      /*edgeList.edges.foreach(edge => {
         if(edge.origin == null){
           val orig = new Vertex(ord.breakPoint(edge.sites), edge)
           edge.origin = orig
         }
-      })
+      })*/
       (999999d, createLinesFromEdges)
     }
   }
@@ -90,6 +91,7 @@ class Fortune {
       event match {
         case e : SiteEvent => handleSiteEvent(e.site)
         case e : CircleEvent =>{
+          Tree.printTree(tree)
           println(e.a.pred.get.site + " -- " + e.a.site + " -- " + e.a.next.get.site)
           handleCircleEvent(Tree.search(e.a,tree)(new NodeOrdering(e.y)), e.y)
         }
@@ -103,12 +105,12 @@ class Fortune {
     val treeL = tree.toList
     val ord = new NodeOrdering(env.getMinY-10)
 
-    edgeList.edges.foreach(edge => {
+    /*edgeList.edges.foreach(edge => {
       if(edge.origin == null){
         val orig = new Vertex(ord.breakPoint(edge.sites), edge)
         edge.origin = orig
       }
-    })
+    })*/
 
     /*treeL.foreach {
       case p : SiteTuple => {
@@ -149,12 +151,14 @@ class Fortune {
   }
 
   def createLinesFromEdges : MultiLineString = {
-    val lines = edgeList.edges.map { edge =>
-      val p1 = edge.origin.point
-      val p2 = edge.twin.origin.point
+    val lines = edgeList.edges.filter { edge =>
+      edge.origin != null && edge.twin.origin != null
+    }.map { edge =>
+        val p1 = edge.origin.point
+        val p2 = edge.twin.origin.point
 
-      factory.createLineString(Array(p1, p2))
-    }.toArray
+        factory.createLineString(Array(p1, p2))
+      }.toArray
 
     factory.createMultiLineString(lines)
   }
@@ -198,7 +202,7 @@ class Fortune {
         a match {
           case Arc(site, Some(pred), Some(next), event) =>
             q = q.filter {
-              case CircleEvent(b, _) => (b.site != pred.site || b.next.get.site != site)  && (b != next || b.next.get.site != site)
+              case CircleEvent(b, _) => ((b.site != pred.site || b.next.get.site != site)  && (b.site != next.site || b.pred.get.site != site)) && b != a
               case _ => true
             }
             tree = Tree.removeArcNode(l, newEdge, tree)
@@ -244,7 +248,7 @@ class Fortune {
         val ord = new NodeOrdering(center.y - r)
         val b1 = ord.breakPoint((a.pred.get.site, a.site))
         val b2 = ord.breakPoint((a.site, a.next.get.site))
-        if(b1.x == b2.x && b1.y == b2.y) {
+        if(round(b1.x) == round(b2.x)) {
           //add event
           val event = CircleEvent(a, center.y - r)
 

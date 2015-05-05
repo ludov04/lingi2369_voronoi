@@ -122,7 +122,7 @@ object Tree {
               rightN
             }
             else {
-              val leftBound = findLeft(parentN)
+              val leftBound = findLeft(parentL)
               if(leftBound != null) {
                 leftBound.value.sites = (leftBound.value.sites._1, rightN.getLeftMost.value.site)
                 leftBound.value.edge = edge
@@ -148,9 +148,9 @@ object Tree {
               leftN
             }
             else {
-              val rightBound = findRight(parentN)
+              val rightBound = findRight(parentL)
               if(rightBound != null) {
-                rightBound.value.sites = (rightBound.value.sites._1, leftN.getRightMost.value.site)
+                rightBound.value.sites = (leftN.getRightMost.value.site, rightBound.value.sites._2)
                 rightBound.value.edge = edge
               }
               parentN match {
@@ -287,21 +287,21 @@ object Tree {
 
   def search(a: Arc, tree: BSTree)(implicit o : NodeOrdering): Leaf = {
     import o._
-    printTree(tree)
+    //printTree(tree)
     a match {
       case Arc(_, None, _, _) => {
-        println("fin a wrong arc : leftMost arc")
+        println("find a wrong arc : leftMost arc")
         tree.getLeftMost
       }
       case Arc(_, _, None, _) => {
-        println("fin a wrong arc : rightMost arc")
+        println("find a wrong arc : rightMost arc")
         tree.getRightMost
       }
       case Arc(valA, Some(pred), Some(next), _) => {
         tree match {
           case v: Leaf => {
-            if(v.value != a) println("find a wrong arc : other")
-            else println("OK-----------")
+            if(v.value != a) println("find a wrong arc : other ==========================================")
+            else println("OK--------------------------------------------")
             v
           }
           case Node(left, value, right, parent) if value.sites._1 == pred.site && value.sites._2 == a.site => {
