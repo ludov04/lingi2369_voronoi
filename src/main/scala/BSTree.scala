@@ -103,8 +103,8 @@ object Tree {
       case Leaf(valueL, parentL) => {
         val predTmp = valueL.pred
         val nextTmp = valueL.next
-        if(predTmp.isDefined) valueL.pred = nextTmp
-        if(nextTmp.isDefined) valueL.next = predTmp
+        predTmp.foreach(_.next = nextTmp)
+        nextTmp.foreach(_.pred = predTmp)
 
         parentL match {
           case Node(leftN, valueN, rightN, parentN) if leftN == x => {

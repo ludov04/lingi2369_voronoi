@@ -36,9 +36,11 @@ class Fortune {
         case e : SiteEvent => handleSiteEvent(e.site)
         case e : CircleEvent => handleCircleEvent(Tree.search(e.a,tree)(new NodeOrdering(e.y)), e.y)
       }
+      println(q.size)
       val beachline = ArrayBuffer[Coordinate]()
       var currArc = Option(tree.getLeftMost.value)
-      while(currArc.isEmpty){
+      while(currArc.isDefined){
+        println(currArc.get.site)
         beachline ++= getParabola(currArc.get, event.y)
         currArc = currArc.get.next
       }
@@ -51,9 +53,13 @@ class Fortune {
   def getParabola(currArc: Arc, yd: Double): ArrayBuffer[Coordinate] = {
     val parabola = ArrayBuffer[Coordinate]()
     val p = currArc.site.y - yd
-    for(x <- 0 until 100){
-      val y = Math.pow((x*10)-currArc.site.x, 2)/(2*p)+currArc.site.y
-      parabola += new Coordinate(x, y)
+    if(p == 0){
+      
+    } else {
+      for (x <- 0 until 1000) {
+        val y = Math.pow((x) - currArc.site.x, 2) / (2 * p) + currArc.site.y - (p / 2)
+        parabola += new Coordinate(x, y)
+      }
     }
     parabola
   }

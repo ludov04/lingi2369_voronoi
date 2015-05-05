@@ -85,6 +85,7 @@ class Gui(val content : Drawer) {
         DCEL.clear()
         content.refresh(points.toArray, fact.createGeometryCollection(Array[Geometry]()))
       }
+      nStep = 0
     })
 
     content.addMouseListener(new MouseListener {
