@@ -50,8 +50,8 @@ class Gui(val content : Drawer) {
         val result = fortuneS.runStep(points.toArray, nStep)
         nStep += 1
         val sweepLine = Array(fact.createLineString(Array(new Coordinate(0, result._1), new Coordinate(1000, result._1))))
-        val geom = fact.createMultiLineString(sweepLine)
-        content.refresh(points.toArray ++ result._2, geom)
+        val geom = fact.createMultiLineString(Array(sweepLine) ++ result._2)
+        content.refresh(points.toArray, geom)
       }
     })
 

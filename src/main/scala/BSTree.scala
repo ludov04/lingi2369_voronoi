@@ -21,19 +21,28 @@ case class SiteTuple(var sites: (Coordinate, Coordinate), var edge: HalfEdge) ex
 class NodeOrdering(y : Double) extends Ordering[ArcNode] {
 
   implicit def breakPoint(sites : (Coordinate, Coordinate)): Coordinate = {
-    val a = (1/(sites._1.y-y))-(1/(sites._2.y-y))
-    val b = (-2*sites._1.x/(sites._1.y-y))+(2*sites._2.x/(sites._2.y-y))
-    val c = (Math.pow(sites._1.x,2)/(sites._1.y-y))-(Math.pow(sites._2.x,2)/(sites._2.y-y))+sites._1.y-sites._2.y
-    val delta = Math.pow(b, 2) - (4*a*c)
-    val s1 = (-b-Math.sqrt(delta))/(2*a)
-    val s2 = (-b+Math.sqrt(delta))/(2*a)
-    //println(s1.toString() + " -- " + s2.toString())
-    if(sites._1.y > sites._2.y){
-      val sy = Math.pow(Math.min(s1, s2)-sites._1.x, 2)/(2*(sites._1.y-y))+y
-      new Coordinate(Math.min(s1, s2), sy)
+    if(sites._1.y == y){
+      val yb = Math.pow((sites._1.x) - sites._2.x, 2) / (2 * y) + sites._2.y - (y / 2)
+      new Coordinate(sites._1.x, yb)
+    } else if(sites._2.y == y) {
+      val yb = Math.pow((sites._2.x) - sites._1.x, 2) / (2 * y) + sites._1.y - (y / 2)
+      new Coordinate(sites._2.x, yb)
+
     } else {
-      val sy = Math.pow(Math.max(s1, s2)-sites._1.x, 2)/(2*(sites._1.y-y))+y
-      new Coordinate(Math.max(s1, s2), sy)
+      val a = (1 / (sites._1.y - y)) - (1 / (sites._2.y - y))
+      val b = (-2 * sites._1.x / (sites._1.y - y)) + (2 * sites._2.x / (sites._2.y - y))
+      val c = (Math.pow(sites._1.x, 2) / (sites._1.y - y)) - (Math.pow(sites._2.x, 2) / (sites._2.y - y)) + sites._1.y - sites._2.y
+      val delta = Math.pow(b, 2) - (4 * a * c)
+      val s1 = (-b - Math.sqrt(delta)) / (2 * a)
+      val s2 = (-b + Math.sqrt(delta)) / (2 * a)
+      //println(s1.toString() + " -- " + s2.toString())
+      if (sites._1.y > sites._2.y) {
+        val sy = Math.pow(Math.min(s1, s2) - sites._1.x, 2) / (2 * (sites._1.y - y)) + y
+        new Coordinate(Math.min(s1, s2), sy)
+      } else {
+        val sy = Math.pow(Math.max(s1, s2) - sites._1.x, 2) / (2 * (sites._1.y - y)) + y
+        new Coordinate(Math.max(s1, s2), sy)
+      }
     }
   }
   def compare(a: ArcNode, b : ArcNode): Int = {

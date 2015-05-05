@@ -54,7 +54,7 @@ class Fortune {
     val parabola = ArrayBuffer[Coordinate]()
     val p = currArc.site.y - yd
     if(p == 0){
-      
+
     } else {
       for (x <- 0 until 1000) {
         val y = Math.pow((x) - currArc.site.x, 2) / (2 * p) + currArc.site.y - (p / 2)
