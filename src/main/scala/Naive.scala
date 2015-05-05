@@ -15,9 +15,8 @@ import scala.collection.mutable.ArrayBuffer
 import scala.language.implicitConversions
 
 
-class Naive(points: Geometry) {
+class Naive(points: Geometry) extends Voronoi{
 
-  val factory = new GeometryFactory()
   val n : Int = points.getNumGeometries()
   val segmentMatrix: Array[Array[LineSegment]] = ofDim[LineSegment](n, n)
   val envelope = DelaunayTriangulationBuilder.envelope(points.getCoordinates.toList)
@@ -31,8 +30,6 @@ class Naive(points: Geometry) {
       new Coordinate(env.getMinX, env.getMinY, 0),
       new Coordinate(env.getMinX, env.getMaxY, 0) // must be closed (closed mean last point is equal to first)
     )
-
-
     factory.createLinearRing(coordinatesArray)
   }
 

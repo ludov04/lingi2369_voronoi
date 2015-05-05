@@ -24,7 +24,7 @@ class Fortune {
   var tree : BSTree = EmptyT()
   val factory = new GeometryFactory()
 
-  def runStep(points: Array[Coordinate], nStep: Int) : (Double, MultiLineString) = {
+  def runStep(points: Array[Coordinate], nStep: Int) : (Int, MultiLineString) = {
     if(nStep == 0) {
       for(i <- 0 until points.length){
         q.enqueue(new SiteEvent(points(i), points(i).y))
@@ -40,7 +40,6 @@ class Fortune {
           handleCircleEvent(Tree.search(e.a,tree)(new NodeOrdering(e.y)), e.y)
         }
       }
-      println(q.size)
       val beachline = ArrayBuffer[LineString]()
       var currArc = Option(tree.getLeftMost.value)
       while(currArc.isDefined){
@@ -48,22 +47,22 @@ class Fortune {
         currArc = currArc.get.next
       }
       beachline += factory.createLineString(Array(new Coordinate(0, event.y), new Coordinate(1000, event.y)))
-      (event.y, factory.createMultiLineString(beachline.toArray))
+      (q.size, factory.createMultiLineString(beachline.toArray))
     } else {
+      println("ok")
       val multipoint = factory.createMultiPoint(points)
       val pointsV = edgeList.vertices.map(v => new Coordinate(v.point.x, v.point.y))
       val multipointV = factory.createMultiPoint(pointsV.toArray)
       val allPoints = multipointV.union(multipoint)
       val env = allPoints.getEnvelopeInternal
+      val expandBy: Double = Math.max(env.getWidth, env.getHeight)
+      env.expandBy(expandBy)
       val treeL = tree.toList
-      val ord = new NodeOrdering(env.getMinY-10)
 
-      edgeList.edges.foreach(edge => {
-        if(edge.origin == null){
-          val orig = new Vertex(ord.breakPoint(edge.sites), edge)
-          edge.origin = orig
-        }
-      })
+
+      connectToBox(env, env.getMinY-100)
+
+      createLinesFromEdges
       (999999d, createLinesFromEdges)
     }
   }
