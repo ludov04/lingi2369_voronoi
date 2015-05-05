@@ -287,6 +287,7 @@ object Tree {
 
   def search(a: Arc, tree: BSTree)(implicit o : NodeOrdering): Leaf = {
     import o._
+    printTree(tree)
     a match {
       case Arc(_, None, _, _) => {
         println("fin a wrong arc : leftMost arc")
@@ -338,6 +339,27 @@ object Tree {
 
   def round(x: Double) = {
     Math.floor(x * 100) / 100
+  }
+
+  def printTree(tree: BSTree) : Unit = {
+    println("==============BEGIN TREE PRINT=====================")
+    prettyPrint(tree, 1)
+    println("==============END TREE PRINT=====================")
+  }
+  def prettyPrint(tree: BSTree, indent: Int) : Unit = {
+    tree match {
+      case Leaf(value, _) => {
+        (0 until indent).foreach(x => print("\t\t"))
+        println(value.site)
+      }
+      case Node(left, value, right, _) => {
+        prettyPrint(right, indent + 1)
+        (0 until indent).foreach(x => print("\t\t"))
+        println(value.sites)
+        prettyPrint(left, indent + 1)
+      }
+    }
+
   }
 
 }
