@@ -35,8 +35,8 @@ class Fortune {
       event match {
         case e : SiteEvent => handleSiteEvent(e.site)
         case e : CircleEvent => {
-          Tree.printTree(tree)
-          println(e.a.pred.get.site + " -- " + e.a.site + " -- " + e.a.next.get.site)
+          //Tree.printTree(tree)
+          //println(e.a.pred.get.site + " -- " + e.a.site + " -- " + e.a.next.get.site)
           handleCircleEvent(Tree.search(e.a,tree)(new NodeOrdering(e.y)), e.y)
         }
       }
@@ -91,8 +91,8 @@ class Fortune {
       event match {
         case e : SiteEvent => handleSiteEvent(e.site)
         case e : CircleEvent =>{
-          Tree.printTree(tree)
-          println(e.a.pred.get.site + " -- " + e.a.site + " -- " + e.a.next.get.site)
+          //Tree.printTree(tree)
+          //println(e.a.pred.get.site + " -- " + e.a.site + " -- " + e.a.next.get.site)
           handleCircleEvent(Tree.search(e.a,tree)(new NodeOrdering(e.y)), e.y)
         }
       }
