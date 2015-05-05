@@ -240,12 +240,17 @@ class Fortune {
       val p = a.site
       val r = Math.sqrt(Math.pow(center.x - p.x, 2) + Math.pow(center.y - p.y, 2))
 
-      if (center.y - r +1 < sweepY) {
-        //add event
-        val event = CircleEvent(a, center.y - r)
+      if (center.y - r <= sweepY) {
+        val ord = new NodeOrdering(center.y - r)
+        val b1 = ord.breakPoint((a.pred.get.site, a.site))
+        val b2 = ord.breakPoint((a.site, a.next.get.site))
+        if(b1.x == b2.x && b1.y == b2.y) {
+          //add event
+          val event = CircleEvent(a, center.y - r)
 
-        a.event = Some(event)
-        q += event
+          a.event = Some(event)
+          q += event
+        }
       }
     }
   }

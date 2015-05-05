@@ -22,7 +22,7 @@ class Gui(val content : Drawer) {
   val x = 1000
   val y = 600
   var nStep = 0
-  val fortuneS = new Fortune
+  var fortuneS = new Fortune
 
   def show() {
     val frame = new JFrame()
@@ -79,11 +79,12 @@ class Gui(val content : Drawer) {
 
     clearButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
+        fortuneS = new Fortune
+        nStep = 0
         points.clear()
         DCEL.clear()
         content.refresh(points.toArray, fact.createGeometryCollection(Array[Geometry]()))
       }
-      nStep = 0
     })
 
     content.addMouseListener(new MouseListener {
