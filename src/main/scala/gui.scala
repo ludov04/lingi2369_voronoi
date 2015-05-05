@@ -6,7 +6,7 @@ import java.awt.BorderLayout
 import java.awt.Dimension
 import java.awt.event.{MouseEvent, MouseListener, ActionEvent, ActionListener}
 
-import javax.swing.{BorderFactory, JButton, JFrame, JPanel}
+import javax.swing._
 
 import com.vividsolutions.jts.geom._
 import com.vividsolutions.jts.io.WKTReader
@@ -23,6 +23,7 @@ class Gui(val content : Drawer) {
   val y = 600
   var nStep = 0
   var fortuneS = new Fortune
+  var q = 1
 
   def show() {
     val frame = new JFrame()
@@ -46,24 +47,19 @@ class Gui(val content : Drawer) {
     buttons.add(clearButton)
     frame.getContentPane.add(buttons, BorderLayout.SOUTH)
 
-    autoStepButton.addActionListener(new ActionListener {
-      override def actionPerformed(e: ActionEvent): Unit = {
-        DCEL.clear()
-        var q = 1
-        while(q != 0) {
-          val result = fortuneS.runStep(points.toArray, nStep)
-          nStep += 1
-          content.refresh(points.toArray, result._2)
-        }
-      }
-    })
-
     stepButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
         DCEL.clear()
         val result = fortuneS.runStep(points.toArray, nStep)
         nStep += 1
         content.refresh(points.toArray, result._2)
+      }
+    })
+
+    autoStepButton.addActionListener(new ActionListener {
+      override def actionPerformed(e: ActionEvent): Unit = {
+        val timer = new Timer(50, stepButton.getActionListeners()(0))
+        timer.start();
       }
     })
 

@@ -75,10 +75,17 @@ class Drawer(var points : Array[Coordinate], var result: GeometryCollection) ext
     this.points = newP
     repaint()
   }
-    def refresh(newP : Array[Coordinate], newR : GeometryCollection): Unit ={
+  def refresh(newP : Array[Coordinate], newR : GeometryCollection): Unit ={
       this.points = newP
       this.result = newR
       repaint()
+  }
+
+  def refresh(newP : Array[Coordinate], newR : GeometryCollection, delay: Long): Unit ={
+    this.points = newP
+    this.result = newR
+    Thread.sleep(delay)
+    repaint()
   }
 
 }

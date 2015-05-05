@@ -1,4 +1,5 @@
 
+
 import com.vividsolutions.jts.geom._
 
 import structure.DCEL
@@ -63,7 +64,7 @@ class Fortune {
       connectToBox(env, env.getMinY-100)
 
       createLinesFromEdges
-      (999999d, createLinesFromEdges)
+      (0, createLinesFromEdges)
     }
   }
 
