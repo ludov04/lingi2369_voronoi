@@ -102,6 +102,8 @@ class Fortune {
     val multipointV = factory.createMultiPoint(pointsV.toArray)
     val allPoints = multipointV.union(multipoint)
     val env = allPoints.getEnvelopeInternal
+    val expandBy: Double = Math.max(env.getWidth, env.getHeight)
+    env.expandBy(expandBy)
     val treeL = tree.toList
 
 
