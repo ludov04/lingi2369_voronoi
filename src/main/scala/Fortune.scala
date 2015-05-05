@@ -205,9 +205,9 @@ class Fortune {
         }
 
         a.pred.foreach(checkCircleEvent(_, sweepY)) //Check the triple of consecutive arcs where the a is the right arc
-        println("check a.pred : " + a.pred.get.pred.get.site + " -- " + a.pred.get.site + " -- " + a.pred.get.next.get.site)
+        //println("check a.pred : " + a.pred.get.pred.get.site + " -- " + a.pred.get.site + " -- " + a.pred.get.next.get.site)
         a.next.foreach(checkCircleEvent(_, sweepY)) //Check the triple of consecutive arcs where the a is the left arc
-        println("check a.next : " + a.next.get.pred.get.site + " -- " + a.next.get.site + " -- " + a.next.get.next.get.site)
+        //println("check a.next : " + a.next.get.pred.get.site + " -- " + a.next.get.site + " -- " + a.next.get.next.get.site)
 
       }
     }
@@ -240,7 +240,7 @@ class Fortune {
       val p = a.site
       val r = Math.sqrt(Math.pow(center.x - p.x, 2) + Math.pow(center.y - p.y, 2))
 
-      if (center.y - r < sweepY) {
+      if (center.y - r +1 < sweepY) {
         //add event
         val event = CircleEvent(a, center.y - r)
 
