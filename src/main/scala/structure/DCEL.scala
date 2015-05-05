@@ -25,7 +25,7 @@ object DCEL {
 
   def createEdge(sites: (Coordinate, Coordinate)) : (HalfEdge, HalfEdge) = {
     val h1 = HalfEdge(null, null, null, null, null, sites)
-    val h2 = HalfEdge(null, null, null, null, null, sites)
+    val h2 = HalfEdge(null, null, null, null, null, (sites._2, sites._1))
     h1.twin = h2
     h2.twin = h1
     edges += h1

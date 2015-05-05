@@ -58,12 +58,12 @@ class Fortune {
       val treeL = tree.toList
       val ord = new NodeOrdering(env.getMinY-10)
 
-      /*edgeList.edges.foreach(edge => {
+      edgeList.edges.foreach(edge => {
         if(edge.origin == null){
           val orig = new Vertex(ord.breakPoint(edge.sites), edge)
           edge.origin = orig
         }
-      })*/
+      })
       (999999d, createLinesFromEdges)
     }
   }
@@ -103,14 +103,14 @@ class Fortune {
     val allPoints = multipointV.union(multipoint)
     val env = allPoints.getEnvelopeInternal
     val treeL = tree.toList
-    val ord = new NodeOrdering(env.getMinY-10)
+    val ord = new NodeOrdering(env.getMinY-100)
 
-    /*edgeList.edges.foreach(edge => {
+    edgeList.edges.foreach(edge => {
       if(edge.origin == null){
-        val orig = new Vertex(ord.breakPoint(edge.sites), edge)
+        val orig = new Vertex(ord.breakPoint((edge.sites._1, edge.sites._2)), edge)
         edge.origin = orig
       }
-    })*/
+    })
 
     /*treeL.foreach {
       case p : SiteTuple => {
@@ -169,16 +169,8 @@ class Fortune {
     center match {
       case Some(c) => {
         //Handle half edges
-        val rightEdge = {
-          val tmp = Tree.findRight(l).value.edge
-          if(tmp.origin == null) tmp.twin
-          else tmp
-        }
-        val leftEdge = {
-          val tmp = Tree.findLeft(l).value.edge
-          if(tmp.origin == null) tmp.twin
-          else tmp
-        }
+        val rightEdge = Tree.findRight(l).value.edge
+        val leftEdge = Tree.findLeft(l).value.edge
 
         val (centerEdge, newEdge) = edgeList.createEdge((a.pred.get.site, a.next.get.site))
         val vertex = Vertex(c, centerEdge)

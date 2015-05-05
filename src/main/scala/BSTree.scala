@@ -37,10 +37,10 @@ class NodeOrdering(y : Double) extends Ordering[ArcNode] {
       val s2 = (-b + Math.sqrt(delta)) / (2 * a)
       //println(s1.toString() + " -- " + s2.toString())
       if (sites._1.y > sites._2.y) {
-        val sy = Math.pow(Math.min(s1, s2) - sites._1.x, 2) / (2 * (sites._1.y - y)) + y
+        val sy = Math.pow(Math.min(s1, s2) - sites._1.x, 2) / (2 * (sites._1.y - y)) + ((sites._1.y + y)/2)
         new Coordinate(Math.min(s1, s2), sy)
       } else {
-        val sy = Math.pow(Math.max(s1, s2) - sites._1.x, 2) / (2 * (sites._1.y - y)) + y
+        val sy = Math.pow(Math.max(s1, s2) - sites._1.x, 2) / (2 * (sites._1.y - y)) + ((sites._1.y + y)/2)
         new Coordinate(Math.max(s1, s2), sy)
       }
     }
@@ -225,9 +225,9 @@ object Tree {
     val newLeaf = Leaf(a, null)
     val rightLeaf = Leaf(rightArc, null)
 
-    val (h,_) = createEdge((a.pred.get.site, a.site))
+    val (g,h) = createEdge((a.pred.get.site, a.site))
 
-    val sub = Node(leftLeaf, SiteTuple((leftArc.site, a.site), h), newLeaf, null )
+    val sub = Node(leftLeaf, SiteTuple((leftArc.site, a.site), g), newLeaf, null )
     leftLeaf.parent = sub
     newLeaf.parent = sub
 
