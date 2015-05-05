@@ -21,6 +21,8 @@ class Gui(val content : Drawer) {
   val fact = new GeometryFactory()
   val x = 1000
   val y = 600
+  var nStep = 0
+  val fortuneS = new Fortune
 
   def show() {
     val frame = new JFrame()
@@ -31,14 +33,27 @@ class Gui(val content : Drawer) {
 
     val buttons = new JPanel()
     val naiveButton = new JButton("Naive")
+    val stepButton = new JButton("Step")
     val fortuneButton = new JButton("Fortune")
     val genButton = new JButton("Generate")
     val clearButton = new JButton("Clear")
+    buttons.add(stepButton)
     buttons.add(fortuneButton)
     buttons.add(naiveButton)
     buttons.add(genButton)
     buttons.add(clearButton)
     frame.getContentPane.add(buttons, BorderLayout.SOUTH)
+
+    stepButton.addActionListener(new ActionListener {
+      override def actionPerformed(e: ActionEvent): Unit = {
+        DCEL.clear()
+        val result = fortuneS.runStep(points.toArray, nStep)
+        nStep += 1
+        val sweepLine = Array(fact.createLineString(Array(new Coordinate(0, result._1), new Coordinate(1000, result._1))))
+        val geom = fact.createMultiLineString(sweepLine)
+        content.refresh(points.toArray ++ result._2, geom)
+      }
+    })
 
     fortuneButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {

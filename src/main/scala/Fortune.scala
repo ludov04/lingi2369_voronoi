@@ -24,6 +24,40 @@ class Fortune {
   var tree : BSTree = EmptyT()
   val factory = new GeometryFactory()
 
+  def runStep(points: Array[Coordinate], nStep: Int) : (Double, Array[Coordinate]) = {
+    if(nStep == 0) {
+      for(i <- 0 until points.length){
+        q.enqueue(new SiteEvent(points(i), points(i).y))
+      }
+    }
+    if(!q.isEmpty){
+      val event = q.dequeue()
+      event match {
+        case e : SiteEvent => handleSiteEvent(e.site)
+        case e : CircleEvent => handleCircleEvent(Tree.search(e.a,tree)(new NodeOrdering(e.y)), e.y)
+      }
+      val beachline = ArrayBuffer[Coordinate]()
+      var currArc = Option(tree.getLeftMost.value)
+      while(currArc.isEmpty){
+        beachline ++= getParabola(currArc.get, event.y)
+        currArc = currArc.get.next
+      }
+      (event.y, beachline.toArray)
+    } else {
+      null
+    }
+  }
+
+  def getParabola(currArc: Arc, yd: Double): ArrayBuffer[Coordinate] = {
+    val parabola = ArrayBuffer[Coordinate]()
+    val p = currArc.site.y - yd
+    for(x <- 0 until 100){
+      val y = Math.pow((x*10)-currArc.site.x, 2)/(2*p)+currArc.site.y
+      parabola += new Coordinate(x, y)
+    }
+    parabola
+  }
+
   def run(points: Array[Coordinate]) = {
     for(i <- 0 until points.length){
       q.enqueue(new SiteEvent(points(i), points(i).y))
