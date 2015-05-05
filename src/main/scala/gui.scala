@@ -77,7 +77,7 @@ class Gui(val content : Drawer) {
 
     naiveButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        val naive = new Naive(fact.createMultiPoint(points.toArray))
+        val naive = new Naive(points.toArray)
         content.refresh(naive.run())
       }
     })

@@ -15,11 +15,11 @@ import scala.collection.mutable.ArrayBuffer
 import scala.language.implicitConversions
 
 
-class Naive(points: Geometry) extends Voronoi{
+class Naive(points: Array[Coordinate]) extends Voronoi {
 
-  val n : Int = points.getNumGeometries()
+  val n : Int = points.length
   val segmentMatrix: Array[Array[LineSegment]] = ofDim[LineSegment](n, n)
-  val envelope = DelaunayTriangulationBuilder.envelope(points.getCoordinates.toList)
+  val envelope = DelaunayTriangulationBuilder.envelope(points.toList)
 
 
   implicit def envelopeToLinearRing(env : Envelope) : LinearRing = {
@@ -35,7 +35,7 @@ class Naive(points: Geometry) extends Voronoi{
 
 
   def computeSegmentMatrix(env : Envelope) = {
-    val coordinates = points.getCoordinates
+    val coordinates = points
 
     for (x <- 0 until n;
          y <- 0 until n if y < x)
@@ -69,12 +69,11 @@ class Naive(points: Geometry) extends Voronoi{
 
     (for (polygon <- polygons if polygon.contains(p)) yield polygon).head
 
-
   }
 
   def computeVoronoiCell(p: Int) = {
     var cell = factory.toGeometry(envelope)
-    val coordinates = points.getCoordinates
+    val coordinates = points
     val point = factory.createPoint(coordinates(p))
 
     for (x <- 0 until n if p != x) {
@@ -108,7 +107,7 @@ object NaiveRun {
 
     val rdr: WKTReader = new WKTReader
     val points = rdr.read("MULTIPOINT ((150 290), (370 120), (100 170), (330 370), (190 60))")
-    val naive = new Naive(points)
+    val naive = new Naive(points.getCoordinates)
     println(factory.createMultiPoint(naive.run().getCoordinates).toText)
   }
 }

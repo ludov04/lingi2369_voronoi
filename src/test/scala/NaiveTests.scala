@@ -17,7 +17,7 @@ class VertexSpec extends NaiveSpec {
     val factory = new GeometryFactory()
     val rdr: WKTReader = new WKTReader
     val points = rdr.read("MULTIPOINT ((150 290), (370 120), (100 170), (330 370), (190 60))")
-    val naive = new Naive(points)
+    val naive = new Naive(points.getCoordinates)
     val diagram = naive.run()
     val pointsNaive = diagram.getCoordinates
 
