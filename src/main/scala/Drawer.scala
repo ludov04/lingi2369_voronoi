@@ -60,6 +60,7 @@ class Drawer(var points : Array[Coordinate], var result: GeometryCollection) ext
     for (j <- 0 until points.length) {
       g.setColor(Color.RED)
       g.fillOval(points(j).x.toInt - 3, points(j).y.toInt - 3, 6, 6)
+      g.drawString(points(j).toString(),points(j).x.toInt,points(j).y.toInt)
     }
   }
 

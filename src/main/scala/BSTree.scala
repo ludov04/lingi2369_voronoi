@@ -213,11 +213,13 @@ object Tree {
   def addParabola(a : Arc, tree: BSTree)(implicit o : NodeOrdering) : (Leaf, BSTree) = {
     val node = search(a.site, tree)
 
-    val leftArc = node.value.copy(next = Some(a))
-    val rightArc = node.value.copy(pred = Some(a))
+    val leftArc = node.value.copy()
+    val rightArc = node.value.copy()
     //update links
     a.pred = Some(leftArc)
     a.next = Some(rightArc)
+    leftArc.next = Some(a)
+    rightArc.pred = Some(a)
 
     val leftLeaf = Leaf(leftArc, null)
     val newLeaf = Leaf(a, null)
@@ -313,11 +315,13 @@ object Tree {
           }
           case Node(left, value, right, parent) if round((breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x)/2) < round(value.sites.x) => {
             println(value.sites.toString())
+            println(round((breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x)/2) + " < " +  round(value.sites.x))
             println("PAN < XY")
             search(a, left)(o)
           }
           case Node(left, value, right, parent) if round((breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x)/2) == round(value.sites.x) => {
             println(value.sites.toString())
+            println(round((breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x)/2) + " == " +  round(value.sites.x))
             println("PAN == XY")
             if(value.sites._2 == a.site) search(a, right)(o)
             else search(a, left)(o)

@@ -24,7 +24,7 @@ class Fortune {
   var tree : BSTree = EmptyT()
   val factory = new GeometryFactory()
 
-  def runStep(points: Array[Coordinate], nStep: Int) : (Double, Array[LineString]) = {
+  def runStep(points: Array[Coordinate], nStep: Int) : (Double, MultiLineString) = {
     if(nStep == 0) {
       for(i <- 0 until points.length){
         q.enqueue(new SiteEvent(points(i), points(i).y))
@@ -34,19 +34,36 @@ class Fortune {
       val event = q.dequeue()
       event match {
         case e : SiteEvent => handleSiteEvent(e.site)
-        case e : CircleEvent => handleCircleEvent(Tree.search(e.a,tree)(new NodeOrdering(e.y)), e.y)
+        case e : CircleEvent => {
+          println(e.a.pred.get.site + " -- " + e.a.site + " -- " + e.a.next.get.site)
+          handleCircleEvent(Tree.search(e.a,tree)(new NodeOrdering(e.y)), e.y)
+        }
       }
       println(q.size)
       val beachline = ArrayBuffer[LineString]()
       var currArc = Option(tree.getLeftMost.value)
       while(currArc.isDefined){
-        println(currArc.get.site)
         beachline += getParabola(currArc.get, event.y)
         currArc = currArc.get.next
       }
-      (event.y, beachline.toArray)
+      beachline += factory.createLineString(Array(new Coordinate(0, event.y), new Coordinate(1000, event.y)))
+      (event.y, factory.createMultiLineString(beachline.toArray))
     } else {
-      null
+      val multipoint = factory.createMultiPoint(points)
+      val pointsV = edgeList.vertices.map(v => new Coordinate(v.point.x, v.point.y))
+      val multipointV = factory.createMultiPoint(pointsV.toArray)
+      val allPoints = multipointV.union(multipoint)
+      val env = allPoints.getEnvelopeInternal
+      val treeL = tree.toList
+      val ord = new NodeOrdering(env.getMinY-10)
+
+      edgeList.edges.foreach(edge => {
+        if(edge.origin == null){
+          val orig = new Vertex(ord.breakPoint(edge.sites), edge)
+          edge.origin = orig
+        }
+      })
+      (999999d, createLinesFromEdges)
     }
   }
 
@@ -72,7 +89,10 @@ class Fortune {
       val event = q.dequeue()
       event match {
         case e : SiteEvent => handleSiteEvent(e.site)
-        case e : CircleEvent => handleCircleEvent(Tree.search(e.a,tree)(new NodeOrdering(e.y)), e.y)
+        case e : CircleEvent =>{
+          println(e.a.pred.get.site + " -- " + e.a.site + " -- " + e.a.next.get.site)
+          handleCircleEvent(Tree.search(e.a,tree)(new NodeOrdering(e.y)), e.y)
+        }
       }
     }
     val multipoint = factory.createMultiPoint(points)
@@ -177,18 +197,17 @@ class Fortune {
         //Handle suppression in the tree
         a match {
           case Arc(site, Some(pred), Some(next), event) =>
-            tree = Tree.removeArcNode(l, newEdge, tree)
-
             q = q.filter {
-              case CircleEvent(b, _) => b.site != pred.site && (b.site != next.site)
+              case CircleEvent(b, _) => (b.site != pred.site || b.next.get.site != site)  && (b != next || b.next.get.site != site)
               case _ => true
             }
-
-
+            tree = Tree.removeArcNode(l, newEdge, tree)
         }
 
         a.pred.foreach(checkCircleEvent(_, sweepY)) //Check the triple of consecutive arcs where the a is the right arc
+        println("check a.pred : " + a.pred.get.pred.get.site + " -- " + a.pred.get.site + " -- " + a.pred.get.next.get.site)
         a.next.foreach(checkCircleEvent(_, sweepY)) //Check the triple of consecutive arcs where the a is the left arc
+        println("check a.next : " + a.next.get.pred.get.site + " -- " + a.next.get.site + " -- " + a.next.get.next.get.site)
 
       }
     }
@@ -221,7 +240,7 @@ class Fortune {
       val p = a.site
       val r = Math.sqrt(Math.pow(center.x - p.x, 2) + Math.pow(center.y - p.y, 2))
 
-      if (center.y - r <= sweepY) {
+      if (center.y - r < sweepY) {
         //add event
         val event = CircleEvent(a, center.y - r)
 
@@ -235,7 +254,6 @@ class Fortune {
     a match {
       case Arc(site, Some(pred), Some(next), event) => {
         if (next.site == pred.site) {
-          println(pred.site + " " + a.site + " " + next.site)
           return None
         }
         var p1 = pred.site
