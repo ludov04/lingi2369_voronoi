@@ -33,16 +33,30 @@ class Gui(val content : Drawer) {
 
     val buttons = new JPanel()
     val naiveButton = new JButton("Naive")
+    val autoStepButton = new JButton("Auto Step")
     val stepButton = new JButton("Step")
     val fortuneButton = new JButton("Fortune")
     val genButton = new JButton("Generate")
     val clearButton = new JButton("Clear")
+    buttons.add(autoStepButton)
     buttons.add(stepButton)
     buttons.add(fortuneButton)
     buttons.add(naiveButton)
     buttons.add(genButton)
     buttons.add(clearButton)
     frame.getContentPane.add(buttons, BorderLayout.SOUTH)
+
+    autoStepButton.addActionListener(new ActionListener {
+      override def actionPerformed(e: ActionEvent): Unit = {
+        DCEL.clear()
+        var q = 1
+        while(q != 0) {
+          val result = fortuneS.runStep(points.toArray, nStep)
+          nStep += 1
+          content.refresh(points.toArray, result._2)
+        }
+      }
+    })
 
     stepButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
