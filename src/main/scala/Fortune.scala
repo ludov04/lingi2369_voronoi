@@ -86,6 +86,7 @@ class Fortune {
     for(i <- 0 until points.length){
       q.enqueue(new SiteEvent(points(i), points(i).y))
     }
+    var lastY : Double = 0
     while(!q.isEmpty){
       val event = q.dequeue()
       event match {
@@ -96,6 +97,7 @@ class Fortune {
           handleCircleEvent(Tree.search(e.a,tree)(new NodeOrdering(e.y)), e.y)
         }
       }
+      lastY = event.y
     }
     val multipoint = factory.createMultiPoint(points)
     val pointsV = edgeList.vertices.map(v => new Coordinate(v.point.x, v.point.y))
@@ -107,7 +109,7 @@ class Fortune {
     val treeL = tree.toList
 
 
-    connectToBox(env, env.getMinY-100)
+    connectToBox(env, lastY - 10)
 
     createLinesFromEdges
   }
