@@ -49,7 +49,6 @@ class Gui(val content : Drawer) {
 
     stepButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        DCEL.clear()
         val result = fortuneS.runStep(points.toArray, nStep)
         nStep += 1
         content.refresh(points.toArray, result._2)
@@ -66,14 +65,13 @@ class Gui(val content : Drawer) {
     fortuneButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
         val fortune = new Fortune
-        DCEL.clear()
         content.refresh(fortune.run(points.toArray))
       }
     })
 
     naiveButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        val naive = new Naive(fact.createMultiPoint(points.toArray))
+        val naive = new Naive(points.toArray)
         content.refresh(naive.run())
       }
     })
@@ -92,7 +90,6 @@ class Gui(val content : Drawer) {
         fortuneS = new Fortune
         nStep = 0
         points.clear()
-        DCEL.clear()
         content.refresh(points.toArray, fact.createGeometryCollection(Array[Geometry]()))
       }
     })

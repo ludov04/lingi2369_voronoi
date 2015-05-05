@@ -2,7 +2,7 @@
 
 import com.vividsolutions.jts.geom._
 
-import structure.DCEL
+import structure._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -20,7 +20,7 @@ case class SiteEvent(site: Coordinate, y: Double) extends Event
 class Fortune {
 
   var q = new mutable.PriorityQueue[Event]()(Ordering.by(_.y))
-  val edgeList = DCEL
+  val edgeList = new DCEL()
   import edgeList._
   var tree : BSTree = EmptyT()
   val factory = new GeometryFactory()
@@ -64,7 +64,7 @@ class Fortune {
       connectToBox(env, env.getMinY-100)
 
       createLinesFromEdges
-      (0, createLinesFromEdges)
+      (q.size, createLinesFromEdges)
     }
   }
 
@@ -86,6 +86,7 @@ class Fortune {
     for(i <- 0 until points.length){
       q.enqueue(new SiteEvent(points(i), points(i).y))
     }
+    var lastY : Double = 0
     while(!q.isEmpty){
       val event = q.dequeue()
       event match {
@@ -96,6 +97,7 @@ class Fortune {
           handleCircleEvent(Tree.search(e.a,tree)(new NodeOrdering(e.y)), e.y)
         }
       }
+      lastY = event.y
     }
     val multipoint = factory.createMultiPoint(points)
     val pointsV = edgeList.vertices.map(v => new Coordinate(v.point.x, v.point.y))
@@ -107,7 +109,7 @@ class Fortune {
     val treeL = tree.toList
 
 
-    connectToBox(env, env.getMinY-100)
+    connectToBox(env, lastY - 10)
 
     createLinesFromEdges
   }
@@ -236,7 +238,7 @@ class Fortune {
       //val (h1, h2) = edgeList.createEdge
 
 
-      val (old, newTree) = Tree.addParabola(newArc, tree)(new NodeOrdering(p.y)) // create and add the subtree, link the half-edge with internal nodes, link newArc with pred/next
+      val (old, newTree) = Tree.addParabola(newArc, tree, edgeList)(new NodeOrdering(p.y)) // create and add the subtree, link the half-edge with internal nodes, link newArc with pred/next
       tree = newTree
       old.value.event.foreach(toRemove => q = q.filterNot(event => toRemove == event)) // remove false alarm
 

@@ -1,6 +1,6 @@
 import com.vividsolutions.jts.geom.Coordinate
 
-import structure.DCEL._
+import structure._
 
 /**
  * Created by Fabian on 27-04-15.
@@ -59,13 +59,6 @@ class NodeOrdering(y : Double) extends Ordering[ArcNode] {
   }
 }
 
-object testrun {
-  def main(args: Array[String]): Unit = {
-    val ord = new NodeOrdering(0)
-    println(ord.breakPoint((new Coordinate(0,10), new Coordinate(10,1))))
-  }
-}
-
 sealed trait BSTree {
   def value : ArcNode
   var parent : Node
@@ -99,7 +92,6 @@ case class Node(var left: BSTree, value: SiteTuple, var right: BSTree, var paren
 
   def isEmpty = false
 }
-// class Tree(var root : BSTree) {
 object Tree {
 
   def removeArcNode(x: Leaf, edge: HalfEdge, root: BSTree): BSTree ={
@@ -210,7 +202,7 @@ object Tree {
    * @param tree
    * @return the leaf that were replaced
    */
-  def addParabola(a : Arc, tree: BSTree)(implicit o : NodeOrdering) : (Leaf, BSTree) = {
+  def addParabola(a : Arc, tree: BSTree, dcel: DCEL)(implicit o : NodeOrdering) : (Leaf, BSTree) = {
     val node = search(a.site, tree)
 
     val leftArc = node.value.copy()
@@ -225,7 +217,7 @@ object Tree {
     val newLeaf = Leaf(a, null)
     val rightLeaf = Leaf(rightArc, null)
 
-    val (g,h) = createEdge((a.pred.get.site, a.site))
+    val (g,h) = dcel.createEdge((a.pred.get.site, a.site))
 
     val sub = Node(leftLeaf, SiteTuple((leftArc.site, a.site), g), newLeaf, null )
     leftLeaf.parent = sub

@@ -12,7 +12,7 @@ object Test {
         for(i <- 0 until n.length){
           val tmpRes = new Array[Long](x)
           for(j <- 0 until x){
-            val naive = new Naive(fact.createMultiPoint(GenPoints.generate(1000, 1000, n(i))))
+            val naive = new Naive(GenPoints.generate(1000, 1000, n(i)))
             val start = System.currentTimeMillis()
             val useless = naive.run()
             tmpRes(j) = System.currentTimeMillis() - start
