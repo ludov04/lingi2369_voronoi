@@ -67,7 +67,8 @@ class MapGui {
 
     autoStepButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        timer.start()
+        if(timer.isRunning) timer.stop()
+        else timer.start()
       }
     })
 

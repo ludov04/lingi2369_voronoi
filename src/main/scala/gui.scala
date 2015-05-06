@@ -72,7 +72,8 @@ class Gui(val content : Drawer) {
 
     autoStepButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        timer.start()
+        if(timer.isRunning) timer.stop()
+        else timer.start()
       }
     })
 
