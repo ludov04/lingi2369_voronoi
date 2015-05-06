@@ -114,16 +114,10 @@ class MapGui {
 
     clearButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-<<<<<<< HEAD
-=======
-        fortuneS = new Fortune(points.toArray, x, y)
-        nStep = 0
->>>>>>> a81db1f5b891fa0db0d45c220671c22e84ebfe2a
         points.clear()
         map.removeAllMapMarkers()
         map.removeAllMapPolygons()
-        fortuneS = new Fortune(points.toArray)
-
+        fortuneS = new Fortune(points.toArray, x, y)
       }
     })
 
