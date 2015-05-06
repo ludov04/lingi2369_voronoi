@@ -46,7 +46,7 @@ class Fortune(val points: Array[Coordinate]) extends Voronoi {
   /**
    * The y coordinate of the sweepline on the last iteration
    */
-  var lastY = 0d
+  var lastY = Double.PositiveInfinity
 
   /**
    *  Run a single iteration of the algorithm, useful for debugging or to show the progess on some UI

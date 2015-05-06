@@ -14,7 +14,7 @@ object Test {
           for(j <- 0 until x){
             val naive = new Naive(GenPoints.generate(1000, 1000, n(i)))
             val start = System.currentTimeMillis()
-            val useless = naive.run()
+            val useless = naive.run
             tmpRes(j) = System.currentTimeMillis() - start
           }
           result(i) = tmpRes.reduceLeft(_+_)/x
