@@ -29,7 +29,7 @@ class MapGui {
     val areas = (0 until lines.getNumGeometries).map(lines.getGeometryN(_).getArea)
     val colors = (0 until lines.getNumGeometries).map( i => {
       val colVal = (((areas(i)-areas.min)/(areas.max-areas.min))*255).toInt
-      new Color(colVal, 255-colVal, 0, 70)
+      new Color(255-colVal, colVal, 0, 70)
     })
     for(i <- 0 until lines.getNumGeometries) {
       val line = lines.getGeometryN(i)
@@ -131,6 +131,8 @@ class MapGui {
           map.addMapMarker(marker)
         }*/
 
+        map.removeAllMapMarkers()
+        map.removeAllMapPolygons()
         val x = Util.read(textField.getText.split(",").map(_.trim).toList)
         x.foreach { e =>
           val marker = new MapMarkerDot(e)

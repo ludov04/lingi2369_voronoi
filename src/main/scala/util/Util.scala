@@ -25,7 +25,8 @@ object Util {
     getClass.getResource("list.csv")
     val reader = CSVReader.open(new File("/Users/ludov/dev/lingi2369_voronoi_2/src/main/resources/list.csv"))
     val values = reader.allWithHeaders()
-    values.filter(_.get("Com").fold(false)(commune => communes.map(commune.contains(_)).reduceLeft(_ || _) ))flatMap { row =>
+    values.filter(_.get("Com").fold(false)(commune => communes.map(commune.startsWith).reduceLeft(_ || _) ))
+      .flatMap { row =>
       val lon = row.get("Lon")
       val lonDec = lon.map { l =>
         val l1 = l.split("°")
