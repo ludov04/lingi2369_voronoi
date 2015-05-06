@@ -234,6 +234,7 @@ class Fortune(val points: Array[Coordinate], winWidth: Int, winHeight: Int) exte
     val expandBy: Double = Math.max(env.getWidth, env.getHeight)
     env.expandBy(expandBy)
 
+
     //connectToBox(env, env.getMinY-100000)
     lastY -= 10
     computeStepDiagram()
