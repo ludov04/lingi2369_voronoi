@@ -234,10 +234,10 @@ class Fortune(val points: Array[Coordinate]) extends Voronoi {
     val expandBy: Double = Math.max(env.getWidth, env.getHeight)
     env.expandBy(expandBy)
 
-    //connectToBox(env, env.getMinY-100000)
-    lastY -= 1000
-    computeStepDiagram()
-    //createLinesFromEdges(edgeList.edges.toList)
+    connectToBox(env, lastY)
+    //lastY -= 100
+    //computeStepDiagram()
+    createLinesFromEdges(edgeList.edges.toList)
   }
 
   def computeStepDiagram() : GeometryCollection = {

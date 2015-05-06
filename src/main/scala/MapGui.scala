@@ -3,7 +3,7 @@ import java.awt.{BorderLayout, Dimension}
 import javax.swing._
 import scala.collection.JavaConversions._
 
-import com.vividsolutions.jts.geom.{Geometry, Coordinate, GeometryFactory}
+import com.vividsolutions.jts.geom.{GeometryCollection, Geometry, Coordinate, GeometryFactory}
 import org.openstreetmap.gui.jmapviewer.{MapMarkerDot, MapPolygonImpl, Coordinate => MapCoordinate, JMapViewer}
 
 import scala.collection.mutable.ArrayBuffer
@@ -17,11 +17,24 @@ class MapGui {
   val fact = new GeometryFactory()
   val x = 1000
   val y = 600
-  var nStep = 0
   var fortuneS = new Fortune(points.toArray)
-  var q = 1
   val map = new JMapViewer()
 
+
+  def addToMap(lines : GeometryCollection) = {
+    for(i <- 0 until lines.getNumGeometries
+    ) {
+      val line = lines.getGeometryN(i)
+      val linePoints = line.getCoordinates
+      val points = linePoints.map { c =>
+        new MapCoordinate(c.y, c.x)
+      }
+
+      val workaround = points.+:(points.last)
+
+      map.addMapPolygon(new MapPolygonImpl(workaround.toList))
+    }
+  }
 
 
   def show() {
@@ -75,18 +88,8 @@ class MapGui {
 
         val fortune = new Fortune(points.toArray)
         val result = fortune.run
-        for(i <- 0 until result.getNumGeometries
-        ) {
-          val line = result.getGeometryN(i)
-          val linePoints = line.getCoordinates
-          val points = linePoints.map { c =>
-            new MapCoordinate(c.y, c.x)
-          }
-
-          val workaround = points.+:(points.last)
-
-          map.addMapPolygon(new MapPolygonImpl(workaround.toList))
-        }
+        map.removeAllMapPolygons()
+        addToMap(result)
 
       }
     })
@@ -94,6 +97,8 @@ class MapGui {
     naiveButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
         val naive = new Naive(points.toArray)
+        map.removeAllMapPolygons()
+        addToMap(naive.run)
       }
     })
 
@@ -108,9 +113,11 @@ class MapGui {
 
     clearButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        fortuneS = new Fortune(points.toArray)
-        nStep = 0
         points.clear()
+        map.removeAllMapMarkers()
+        map.removeAllMapPolygons()
+        fortuneS = new Fortune(points.toArray)
+
       }
     })
 
