@@ -236,9 +236,9 @@ class Fortune(val points: Array[Coordinate], winWidth: Int, winHeight: Int) exte
 
 
     //connectToBox(env, env.getMinY-100000)
-    lastY -= 10
-    computeStepDiagram()
-    //createLinesFromEdges(edgeList.edges.toList)
+    //lastY -= 10
+    //computeStepDiagram()
+    createLinesFromEdges(edgeList.edges.toList)
   }
 
   def computeStepDiagram() : GeometryCollection = {

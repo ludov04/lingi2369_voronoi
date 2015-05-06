@@ -49,12 +49,12 @@ class NodeOrdering(y : Double) extends Ordering[ArcNode] {
   def compare(a: ArcNode, b : ArcNode): Int = {
     a match {
       case SiteTuple(aSites, _) => b match {
-          case SiteTuple(bSites, _) => aSites.x.compareTo(bSites.x)
-          case Arc(site, _, _, _) => aSites.x.compareTo(site.x)
+          case SiteTuple(bSites, _) => Util.round(aSites.x).compareTo(Util.round(bSites.x))
+          case Arc(site, _, _, _) => Util.round(aSites.x).compareTo(Util.round(site.x))
         }
       case Arc(site, _, _, _) => b match {
-          case SiteTuple(bSites, _) => site.x.compareTo(bSites.x)
-          case Arc(p, _, _, _) => site.x.compareTo(p.x)
+          case SiteTuple(bSites, _) => Util.round(site.x).compareTo(Util.round(bSites.x))
+          case Arc(p, _, _, _) => Util.round(site.x).compareTo(Util.round(p.x))
         }
     }
   }
@@ -272,9 +272,12 @@ object Tree {
     import o._
     tree match {
       case v: Leaf => v
-      case Node(left, value, right, parent) if x.x < value.sites.x => search(x, left)
+      case Node(left, value, right, parent) if x.x <= value.sites.x => search(x, left)
       case Node(left, value, right, parent) if x.x >= value.sites.x => search(x, right)
       case _: EmptyT => throw new UnsupportedOperationException
+      case Node(left, value, right, parent) =>
+        println("x.x: " +  x.x + "  value.sites.x;  " + breakPoint(value.sites).x)
+        null
     }
   }
 

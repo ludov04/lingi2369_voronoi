@@ -1,6 +1,9 @@
 import java.awt.event.{MouseEvent, MouseListener, ActionEvent, ActionListener}
 import java.awt.{Toolkit, BorderLayout, Dimension}
 import javax.swing._
+import org.openstreetmap.gui.jmapviewer.interfaces.MapMarker
+import util.Util
+
 import scala.collection.JavaConversions._
 
 import com.vividsolutions.jts.geom.{GeometryCollection, Geometry, Coordinate, GeometryFactory}
@@ -13,12 +16,11 @@ import scala.collection.mutable.ArrayBuffer
  */
 class MapGui {
 
-  val points = new ArrayBuffer[Coordinate]()
   val fact = new GeometryFactory()
   val screenSize = Toolkit.getDefaultToolkit().getScreenSize()
   val x = (screenSize.getWidth-50).toInt
   val y = (screenSize.getHeight-50).toInt
-  var fortuneS = new Fortune(points.toArray, x, y)
+  var fortuneS = new Fortune(Array[Coordinate](), x, y)
   val map = new JMapViewer()
 
 
@@ -28,7 +30,8 @@ class MapGui {
       val line = lines.getGeometryN(i)
       val linePoints = line.getCoordinates
       val points = linePoints.map { c =>
-        new MapCoordinate(c.y, c.x)
+        val cMap = map.getPosition(c.x.toInt, c.y.toInt)
+        new MapCoordinate(cMap.getLat, cMap.getLon)
       }
 
       val workaround = points.+:(points.last)
@@ -37,6 +40,12 @@ class MapGui {
     }
   }
 
+  def transformToLinearSystem(markers: java.util.List[MapMarker]) = {
+    markers.map { point =>
+      val pos = map.getMapPosition(point.getCoordinate, false)
+      new Coordinate(pos.x, pos.y)
+    }.toArray
+  }
 
   def show() {
     val frame = new JFrame()
@@ -87,8 +96,8 @@ class MapGui {
 
     fortuneButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-
-        val fortune = new Fortune(points.toArray, x, y)
+        val toAdd = transformToLinearSystem(map.getMapMarkerList)
+        val fortune = new Fortune(toAdd.toArray, x, y)
         val result = fortune.run
         map.removeAllMapPolygons()
         addToMap(result)
@@ -98,6 +107,7 @@ class MapGui {
 
     naiveButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
+        val points = transformToLinearSystem(map.getMapMarkerList)
         val naive = new Naive(points.toArray)
         map.removeAllMapPolygons()
         addToMap(naive.run)
@@ -106,19 +116,27 @@ class MapGui {
 
     genButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        val n = 100
+        /*val n = 100
         val newP = GenPoints.generate(x, y, n)
-        for(i <- 0 until n) points += newP(i)
-        fortuneS = new Fortune(points.toArray, x, y)
+        newP.foreach { e =>
+          val c =  map.getPosition(e.x.toInt, e.y.toInt)
+          val marker = new MapMarkerDot(c)
+          map.addMapMarker(marker)
+        }*/
+
+        val x = Util.read("1000 Bruxelles")
+        x.foreach { e =>
+          val marker = new MapMarkerDot(e)
+          map.addMapMarker(marker)
+        }
       }
     })
 
     clearButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        points.clear()
         map.removeAllMapMarkers()
         map.removeAllMapPolygons()
-        fortuneS = new Fortune(points.toArray, x, y)
+        fortuneS = new Fortune(Array[Coordinate](), x, y)
       }
     })
 
@@ -141,7 +159,6 @@ class MapGui {
 
     override def mouseClicked(e: MouseEvent): Unit = {
       val c =  map.getPosition(e.getX, e.getY)
-      points += new Coordinate(c.getLon, c.getLat)
       val marker = new MapMarkerDot(c)
       map.addMapMarker(marker)
     }
