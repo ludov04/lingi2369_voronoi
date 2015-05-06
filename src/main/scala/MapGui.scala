@@ -24,7 +24,8 @@ class MapGui {
   val map = new JMapViewer()
 
 
-  def addToMap(lines : GeometryCollection) = {
+  def addToMap(geoms : GeometryCollection) = {
+    val lines = (0 until geoms.getNumGeometries).map(geoms.getGeometryN(_)).filter()
     val areas = (0 until lines.getNumGeometries).map(lines.getGeometryN(_).getArea)
     val colors = (0 until lines.getNumGeometries).map( i => {
       val colVal = (((areas(i)-areas.min)/(areas.max-areas.min))*255).toInt
