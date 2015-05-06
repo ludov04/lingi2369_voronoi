@@ -23,10 +23,10 @@ class NodeOrdering(y : Double) extends Ordering[ArcNode] {
 
   implicit def breakPoint(sites : (Coordinate, Coordinate)): Coordinate = {
     if(sites._1.y == y){
-      val yb = Math.pow((sites._1.x) - sites._2.x, 2) / (2 * y) + sites._2.y - (y / 2)
+      val yb = Math.pow(sites._1.x - sites._2.x, 2) / (2 * (sites._2.y-y)) + sites._2.y - (y / 2)
       new Coordinate(sites._1.x, yb)
     } else if(sites._2.y == y) {
-      val yb = Math.pow((sites._2.x) - sites._1.x, 2) / (2 * y) + sites._1.y - (y / 2)
+      val yb = Math.pow(sites._2.x - sites._1.x, 2) / (2 * (sites._1.y-y)) + sites._1.y - (y / 2)
       new Coordinate(sites._2.x, yb)
 
     } else {
