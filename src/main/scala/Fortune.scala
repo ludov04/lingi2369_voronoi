@@ -54,7 +54,6 @@ class Fortune(val points: Array[Coordinate]) extends Voronoi {
    *         false if there is still some events of the queue i.e. the algorithm is not finished
    */
   def runStep() : Boolean = {
-    Tree.printTree(tree)
     if(q.nonEmpty){
       val event = q.dequeue()
       event match {
@@ -221,7 +220,6 @@ class Fortune(val points: Array[Coordinate]) extends Voronoi {
     }
   }
 
-
   /**
    * Compute a bounding box, connect the half-edge to it, and compute a GeometryCollection representing the Voronoi Diagram
    * @return a GeometryCollection representing the Voronoi Diagram
@@ -236,9 +234,10 @@ class Fortune(val points: Array[Coordinate]) extends Voronoi {
     val expandBy: Double = Math.max(env.getWidth, env.getHeight)
     env.expandBy(expandBy)
 
-    connectToBox(env, env.getMinY-100000)
-
-    createLinesFromEdges(edgeList.edges.toList)
+    //connectToBox(env, env.getMinY-100000)
+    lastY -= 1000
+    computeStepDiagram()
+    //createLinesFromEdges(edgeList.edges.toList)
   }
 
   def computeStepDiagram() : GeometryCollection = {
@@ -250,15 +249,9 @@ class Fortune(val points: Array[Coordinate]) extends Voronoi {
           var currArc = tree.getLeftMost.value
           while (currArc.next.isDefined) {
             if ((currArc.site, currArc.next.get.site) == edge.sites) {
-              ord.breakPoint(edge.sites)
+              return ord.breakPoint(edge.sites)
             } else if ((currArc.next.get.site, currArc.site) == edge.sites) {
-              ord.breakPoint(edge.twin.sites)
-            } else if (currArc.pred.isDefined){
-              if((currArc.pred.get.site, currArc.site) == edge.sites){
-                ord.breakPoint(edge.sites)
-              } else if((currArc.site, currArc.pred.get.site) == edge.sites){
-                ord.breakPoint(edge.twin.sites)
-              }
+              return ord.breakPoint(edge.twin.sites)
             }
             currArc = currArc.next.get
           }
@@ -270,8 +263,6 @@ class Fortune(val points: Array[Coordinate]) extends Voronoi {
     }
 
     val lines = edgeList.edges.map { edge =>
-      val bNorm = ord.breakPoint(edge.sites)
-      val bInv = ord.breakPoint(edge.twin.sites)
       val p1 = bpEdge(edge)
       val p2 = bpEdge(edge.twin)
       factory.createLineString(Array(p1, p2))
