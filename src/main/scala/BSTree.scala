@@ -26,16 +26,22 @@ class NodeOrdering(y : Double) extends Ordering[ArcNode] {
       val yb = Math.pow(sites._1.x - sites._2.x, 2) / (2 * (sites._2.y-y)) + sites._2.y - (y / 2)
       new Coordinate(sites._1.x, yb)
     } else if(sites._2.y == y) {
-      val yb = Math.pow(sites._2.x - sites._1.x, 2) / (2 * (sites._1.y-y)) + sites._1.y - (y / 2)
+      val yb = Math.pow(sites._2.x - sites._1.x, 2) / (2 * (sites._1.y - y)) + sites._1.y - (y / 2)
       new Coordinate(sites._2.x, yb)
-
     } else {
-      val a = (1 / (sites._1.y - y)) - (1 / (sites._2.y - y))
-      val b = (-2 * sites._1.x / (sites._1.y - y)) + (2 * sites._2.x / (sites._2.y - y))
-      val c = (Math.pow(sites._1.x, 2) / (sites._1.y - y)) - (Math.pow(sites._2.x, 2) / (sites._2.y - y)) + sites._1.y - sites._2.y
-      val delta = Math.pow(b, 2) - (4 * a * c)
-      val s1 = (-b - Math.sqrt(delta)) / (2 * a)
-      val s2 = (-b + Math.sqrt(delta)) / (2 * a)
+      var s1 = 0d
+      var s2 = 0d
+      if(sites._1.y == sites._2.y){
+        s1 = (sites._1.x+sites._2.x)/2
+        s2 = s1
+      } else {
+        val a = (1 / (sites._1.y - y)) - (1 / (sites._2.y - y))
+        val b = (-2 * sites._1.x / (sites._1.y - y)) + (2 * sites._2.x / (sites._2.y - y))
+        val c = (Math.pow(sites._1.x, 2) / (sites._1.y - y)) - (Math.pow(sites._2.x, 2) / (sites._2.y - y)) + sites._1.y - sites._2.y
+        val delta = Math.pow(b, 2) - (4 * a * c)
+        s1 = (-b - Math.sqrt(delta)) / (2 * a)
+        s2 = (-b + Math.sqrt(delta)) / (2 * a)
+      }
       //println(s1.toString() + " -- " + s2.toString())
       if (sites._1.y > sites._2.y) {
         val sy = Math.pow(Math.min(s1, s2) - sites._1.x, 2) / (2 * (sites._1.y - y)) + ((sites._1.y + y)/2)
