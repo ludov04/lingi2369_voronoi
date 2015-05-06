@@ -59,11 +59,12 @@ class MapGui {
 
 
     val buttons = new JPanel()
+    val textField = new JTextField(20);
     val naiveButton = new JButton("Naive")
     val autoStepButton = new JButton("Auto Step")
     val stepButton = new JButton("Step")
     val fortuneButton = new JButton("Fortune")
-    val genButton = new JButton("Generate")
+    val genButton = new JButton("Add")
     val clearButton = new JButton("Clear")
     buttons.add(autoStepButton)
     buttons.add(stepButton)
@@ -71,6 +72,7 @@ class MapGui {
     buttons.add(naiveButton)
     buttons.add(genButton)
     buttons.add(clearButton)
+    buttons.add(textField)
     frame.getContentPane.add(buttons, BorderLayout.SOUTH)
 
 
@@ -87,6 +89,7 @@ class MapGui {
 
     timer.addActionListener(stepListener)
     stepButton.addActionListener(stepListener)
+
 
 
 
@@ -127,7 +130,7 @@ class MapGui {
           map.addMapMarker(marker)
         }*/
 
-        val x = Util.read("1000 Bruxelles")
+        val x = Util.read(textField.getText.split(",").map(_.trim).toList)
         x.foreach { e =>
           val marker = new MapMarkerDot(e)
           map.addMapMarker(marker)

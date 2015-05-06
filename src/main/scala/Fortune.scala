@@ -235,7 +235,7 @@ class Fortune(val points: Array[Coordinate], winWidth: Int, winHeight: Int) exte
     env.expandBy(expandBy)
 
 
-    //connectToBox(env, env.getMinY-100000)
+    connectToBox(env, lastY)
     //lastY -= 10
     //computeStepDiagram()
     createLinesFromEdges(edgeList.edges.toList)
