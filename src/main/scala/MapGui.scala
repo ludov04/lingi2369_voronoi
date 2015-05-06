@@ -1,5 +1,5 @@
 import java.awt.event.{MouseEvent, MouseListener, ActionEvent, ActionListener}
-import java.awt.{BorderLayout, Dimension}
+import java.awt.{Toolkit, BorderLayout, Dimension}
 import javax.swing._
 import scala.collection.JavaConversions._
 
@@ -15,10 +15,11 @@ class MapGui {
 
   val points = new ArrayBuffer[Coordinate]()
   val fact = new GeometryFactory()
-  val x = 1000
-  val y = 600
+  val screenSize = Toolkit.getDefaultToolkit().getScreenSize()
+  val x = (screenSize.getWidth-50).toInt
+  val y = (screenSize.getHeight-50).toInt
   var nStep = 0
-  var fortuneS = new Fortune(points.toArray)
+  var fortuneS = new Fortune(points.toArray, x, y)
   var q = 1
   val map = new JMapViewer()
 
@@ -73,7 +74,7 @@ class MapGui {
     fortuneButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
 
-        val fortune = new Fortune(points.toArray)
+        val fortune = new Fortune(points.toArray, x, y)
         val result = fortune.run
         for(i <- 0 until result.getNumGeometries
         ) {
@@ -102,13 +103,13 @@ class MapGui {
         val n = 100
         val newP = GenPoints.generate(x, y, n)
         for(i <- 0 until n) points += newP(i)
-        fortuneS = new Fortune(points.toArray)
+        fortuneS = new Fortune(points.toArray, x, y)
       }
     })
 
     clearButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        fortuneS = new Fortune(points.toArray)
+        fortuneS = new Fortune(points.toArray, x, y)
         nStep = 0
         points.clear()
       }

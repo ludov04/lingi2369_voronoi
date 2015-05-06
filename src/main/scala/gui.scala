@@ -2,8 +2,7 @@
  * Created by Fabian on 25-04-15.
  */
 
-import java.awt.BorderLayout
-import java.awt.Dimension
+import java.awt.{Toolkit, BorderLayout, Dimension}
 import java.awt.event.{MouseEvent, MouseListener, ActionEvent, ActionListener}
 
 import javax.swing._
@@ -19,10 +18,11 @@ class Gui(val content : Drawer) {
 
   val points = new ArrayBuffer[Coordinate]()
   val fact = new GeometryFactory()
-  val x = 1000
-  val y = 600
+  val screenSize = Toolkit.getDefaultToolkit().getScreenSize()
+  val x = (screenSize.getWidth-20).toInt
+  val y = (screenSize.getHeight-150).toInt
   var nStep = 0
-  var fortuneS = new Fortune(points.toArray)
+  var fortuneS = new Fortune(points.toArray, x, y)
   var q = 1
 
 
@@ -50,7 +50,7 @@ class Gui(val content : Drawer) {
     frame.getContentPane.add(buttons, BorderLayout.SOUTH)
 
 
-    val timer = new Timer(50, null)
+    val timer = new Timer(20, null)
     val stepListener = new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
         val result = if(fortuneS.runStep()) {
@@ -78,7 +78,7 @@ class Gui(val content : Drawer) {
 
     fortuneButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        val fortune = new Fortune(points.toArray)
+        val fortune = new Fortune(points.toArray, x, y)
         content.refresh(fortune.run)
       }
     })
@@ -95,14 +95,14 @@ class Gui(val content : Drawer) {
         val n = 100
         val newP = GenPoints.generate(x, y, n)
         for(i <- 0 until n) points += newP(i)
-        fortuneS = new Fortune(points.toArray)
+        fortuneS = new Fortune(points.toArray, x, y)
         content.refresh(points.toArray)
       }
     })
 
     clearButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        fortuneS = new Fortune(points.toArray)
+        fortuneS = new Fortune(points.toArray, x, y)
         nStep = 0
         points.clear()
         content.refresh(points.toArray, fact.createGeometryCollection(Array[Geometry]()))
@@ -114,7 +114,7 @@ class Gui(val content : Drawer) {
 
       override def mouseClicked(e: MouseEvent): Unit = {
         points += new Coordinate(e.getX, e.getY)
-        fortuneS = new Fortune(points.toArray)
+        fortuneS = new Fortune(points.toArray, x, y)
         content.refresh(points.toArray)
       }
 
