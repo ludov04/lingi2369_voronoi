@@ -1,5 +1,5 @@
 import java.awt.event.{MouseEvent, MouseListener, ActionEvent, ActionListener}
-import java.awt.{BorderLayout, Dimension}
+import java.awt.{Toolkit, BorderLayout, Dimension}
 import javax.swing._
 import scala.collection.JavaConversions._
 
@@ -15,9 +15,10 @@ class MapGui {
 
   val points = new ArrayBuffer[Coordinate]()
   val fact = new GeometryFactory()
-  val x = 1000
-  val y = 600
-  var fortuneS = new Fortune(points.toArray)
+  val screenSize = Toolkit.getDefaultToolkit().getScreenSize()
+  val x = (screenSize.getWidth-50).toInt
+  val y = (screenSize.getHeight-50).toInt
+  var fortuneS = new Fortune(points.toArray, x, y)
   val map = new JMapViewer()
 
 
@@ -86,7 +87,7 @@ class MapGui {
     fortuneButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
 
-        val fortune = new Fortune(points.toArray)
+        val fortune = new Fortune(points.toArray, x, y)
         val result = fortune.run
         map.removeAllMapPolygons()
         addToMap(result)
@@ -107,12 +108,17 @@ class MapGui {
         val n = 100
         val newP = GenPoints.generate(x, y, n)
         for(i <- 0 until n) points += newP(i)
-        fortuneS = new Fortune(points.toArray)
+        fortuneS = new Fortune(points.toArray, x, y)
       }
     })
 
     clearButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
+<<<<<<< HEAD
+=======
+        fortuneS = new Fortune(points.toArray, x, y)
+        nStep = 0
+>>>>>>> a81db1f5b891fa0db0d45c220671c22e84ebfe2a
         points.clear()
         map.removeAllMapMarkers()
         map.removeAllMapPolygons()

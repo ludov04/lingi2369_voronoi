@@ -16,7 +16,7 @@ import scala.util.control.Breaks._
  * A class that implement Fortune's algorithm to compute a Voronoi Diagram
  * @param points The set of points (sites) for which the Voronoi Diagram is computed
  */
-class Fortune(val points: Array[Coordinate]) extends Voronoi {
+class Fortune(val points: Array[Coordinate], winWidth: Int, winHeight: Int) extends Voronoi {
 
   import Fortune._
 
@@ -234,10 +234,11 @@ class Fortune(val points: Array[Coordinate]) extends Voronoi {
     val expandBy: Double = Math.max(env.getWidth, env.getHeight)
     env.expandBy(expandBy)
 
-    connectToBox(env, lastY)
-    //lastY -= 100
-    //computeStepDiagram()
-    createLinesFromEdges(edgeList.edges.toList)
+
+    //connectToBox(env, env.getMinY-100000)
+    lastY -= 10
+    computeStepDiagram()
+    //createLinesFromEdges(edgeList.edges.toList)
   }
 
   def computeStepDiagram() : GeometryCollection = {
@@ -283,7 +284,7 @@ class Fortune(val points: Array[Coordinate]) extends Voronoi {
       if(parabola.length >= 2) beachline += factory.createLineString(parabola)
       currArc = currArc.get.next
     }
-    beachline += factory.createLineString(Array(new Coordinate(0, lastY), new Coordinate(1000, lastY)))
+    beachline += factory.createLineString(Array(new Coordinate(0, lastY), new Coordinate(winWidth, lastY)))
     factory.createMultiLineString(beachline.toArray)
   }
 
@@ -314,7 +315,7 @@ class Fortune(val points: Array[Coordinate]) extends Voronoi {
     if(p == 0){
       parabola ++= Array(currArc.site, new Coordinate(currArc.site.x, yd))
     } else {
-      for (x <- 0 until 1000) {
+      for (x <- 0 until winWidth) {
         if(x >= b1 && x <= b2) {
           val y = Math.pow(x - currArc.site.x, 2) / (2 * p) + currArc.site.y - (p / 2)
           parabola += new Coordinate(x, y)
