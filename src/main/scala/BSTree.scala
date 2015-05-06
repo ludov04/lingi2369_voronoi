@@ -303,14 +303,15 @@ object Tree {
 
   def printTree(tree: BSTree) : Unit = {
     println("==============BEGIN TREE PRINT=====================")
-    prettyPrint(tree, 1)
+    if(tree.isEmpty) println("Empty tree")
+    else prettyPrint(tree, 1)
     println("==============END TREE PRINT=====================")
   }
   def prettyPrint(tree: BSTree, indent: Int) : Unit = {
     tree match {
       case Leaf(value, _) => {
         (0 until indent).foreach(x => print("\t\t"))
-        println(value.site)
+        println(value.pred + " -- " + value.site + " -- " + value.next)
       }
       case Node(left, value, right, _) => {
         prettyPrint(right, indent + 1)

@@ -6,6 +6,7 @@ import com.vividsolutions.jts.geom._
 import structure._
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.util.control.Breaks._
 
 /**
  * Created by ludov on 27/04/15.
@@ -53,6 +54,7 @@ class Fortune(val points: Array[Coordinate]) extends Voronoi {
    *         false if there is still some events of the queue i.e. the algorithm is not finished
    */
   def runStep() : Boolean = {
+    Tree.printTree(tree)
     if(q.nonEmpty){
       val event = q.dequeue()
       event match {
@@ -234,9 +236,48 @@ class Fortune(val points: Array[Coordinate]) extends Voronoi {
     val expandBy: Double = Math.max(env.getWidth, env.getHeight)
     env.expandBy(expandBy)
 
-    connectToBox(env, env.getMinY-1000)
+    connectToBox(env, env.getMinY-100000)
 
     createLinesFromEdges(edgeList.edges.toList)
+  }
+
+  def computeStepDiagram() : GeometryCollection = {
+    val ord = new NodeOrdering(lastY)
+    def bpEdge(edge: HalfEdge) : Coordinate = {
+      if(edge.origin == null){
+        if(edge.twin.origin == null) ord.breakPoint(edge.sites)
+        else {
+          var currArc = tree.getLeftMost.value
+          while (currArc.next.isDefined) {
+            if ((currArc.site, currArc.next.get.site) == edge.sites) {
+              ord.breakPoint(edge.sites)
+            } else if ((currArc.next.get.site, currArc.site) == edge.sites) {
+              ord.breakPoint(edge.twin.sites)
+            } else if (currArc.pred.isDefined){
+              if((currArc.pred.get.site, currArc.site) == edge.sites){
+                ord.breakPoint(edge.sites)
+              } else if((currArc.site, currArc.pred.get.site) == edge.sites){
+                ord.breakPoint(edge.twin.sites)
+              }
+            }
+            currArc = currArc.next.get
+          }
+          println(edge.sites._1 + " -- " + edge.sites._2)
+          ord.breakPoint(edge.sites)
+        }
+      }
+      else edge.origin.point
+    }
+
+    val lines = edgeList.edges.map { edge =>
+      val bNorm = ord.breakPoint(edge.sites)
+      val bInv = ord.breakPoint(edge.twin.sites)
+      val p1 = bpEdge(edge)
+      val p2 = bpEdge(edge.twin)
+      factory.createLineString(Array(p1, p2))
+    }.toArray
+
+    factory.createMultiLineString(lines)
   }
 
   /**
@@ -247,7 +288,8 @@ class Fortune(val points: Array[Coordinate]) extends Voronoi {
     val beachline = ArrayBuffer[LineString]()
     var currArc = Option(tree.getLeftMost.value)
     while(currArc.isDefined){
-      beachline += getParabola(currArc.get, lastY)
+      val parabola = getParabola(currArc.get, lastY)
+      if(parabola.length >= 2) beachline += factory.createLineString(parabola)
       currArc = currArc.get.next
     }
     beachline += factory.createLineString(Array(new Coordinate(0, lastY), new Coordinate(1000, lastY)))
@@ -260,18 +302,35 @@ class Fortune(val points: Array[Coordinate]) extends Voronoi {
    * @param yd
    * @return
    */
-  def getParabola(currArc: Arc, yd: Double): LineString = {
+  def getParabola(currArc: Arc, yd: Double): Array[Coordinate] = {
+    val ord = new NodeOrdering(yd)
+    val b1 = {
+      if (currArc.pred.isEmpty) {
+        Double.MinValue
+      } else {
+        ord.breakPoint((currArc.pred.get.site, currArc.site)).x
+      }
+    }
+    val b2 = {
+      if (currArc.next.isEmpty) {
+        Double.MaxValue
+      } else {
+        ord.breakPoint((currArc.site, currArc.next.get.site)).x
+      }
+    }
     val parabola = ArrayBuffer[Coordinate]()
     val p = currArc.site.y - yd
     if(p == 0){
       parabola ++= Array(currArc.site, new Coordinate(currArc.site.x, yd))
     } else {
       for (x <- 0 until 1000) {
-        val y = Math.pow(x - currArc.site.x, 2) / (2 * p) + currArc.site.y - (p / 2)
-        parabola += new Coordinate(x, y)
+        if(x >= b1 && x <= b2) {
+          val y = Math.pow(x - currArc.site.x, 2) / (2 * p) + currArc.site.y - (p / 2)
+          parabola += new Coordinate(x, y)
+        }
       }
     }
-    factory.createLineString(parabola.toArray)
+    parabola.toArray
   }
 
 }

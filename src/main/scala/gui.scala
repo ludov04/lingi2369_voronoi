@@ -57,7 +57,9 @@ class Gui(val content : Drawer) {
           timer.stop()
           fortuneS.computeDiagram()
         }
-        else fortuneS.getBeachLine
+        else {
+          fortuneS.getBeachLine.union(fortuneS.computeStepDiagram).asInstanceOf[GeometryCollection]
+        }
         content.refresh(points.toArray,  result )
 
       }
