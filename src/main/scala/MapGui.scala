@@ -1,5 +1,5 @@
 import java.awt.event.{MouseEvent, MouseListener, ActionEvent, ActionListener}
-import java.awt.{Toolkit, BorderLayout, Dimension}
+import java.awt._
 import javax.swing._
 import org.openstreetmap.gui.jmapviewer.interfaces.MapMarker
 import util.Util
@@ -7,7 +7,7 @@ import util.Util
 import scala.collection.JavaConversions._
 
 import com.vividsolutions.jts.geom.{GeometryCollection, Geometry, Coordinate, GeometryFactory}
-import org.openstreetmap.gui.jmapviewer.{MapMarkerDot, MapPolygonImpl, Coordinate => MapCoordinate, JMapViewer}
+import org.openstreetmap.gui.jmapviewer.{Coordinate => MapCoordinate, _}
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -25,8 +25,12 @@ class MapGui {
 
 
   def addToMap(lines : GeometryCollection) = {
-    for(i <- 0 until lines.getNumGeometries
-    ) {
+    val areas = (0 until lines.getNumGeometries).map(lines.getGeometryN(_).getArea)
+    val colors = (0 until lines.getNumGeometries).map( i => {
+      val colVal = (((areas(i)-areas.min)/(areas.max-areas.min))*255).toInt
+      new Color(colVal, 255-colVal, 0, 70)
+    })
+    for(i <- 0 until lines.getNumGeometries) {
       val line = lines.getGeometryN(i)
       val linePoints = line.getCoordinates
       val points = linePoints.map { c =>
@@ -35,8 +39,7 @@ class MapGui {
       }
 
       val workaround = points.+:(points.last)
-
-      map.addMapPolygon(new MapPolygonImpl(workaround.toList))
+      map.addMapPolygon(new MapPolygonImpl(null, null, workaround.toList, new Style(Color.BLUE, colors(i), new BasicStroke(2), MapObjectImpl.getDefaultFont)))
     }
   }
 
