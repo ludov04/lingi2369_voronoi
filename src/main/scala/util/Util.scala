@@ -10,7 +10,7 @@ import com.github.tototoshi.csv._
  */
 object Util {
   def round(x: Double) = {
-    Math.floor(x * 100) / 100
+    Math.floor(x * 10000) / 10000
   }
 
   def distance(x1: Coordinate, x2: Coordinate): Double = {
