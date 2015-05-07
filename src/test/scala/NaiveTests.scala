@@ -31,7 +31,6 @@ class VertexSpec extends NaiveSpec {
     jtsCoords.length should equal (pointsNaive.length)
   }
 
-  // What happens if the right neighbor and the left neighbor correspond to the same site ?
-  // Should not happen but who nows ?
+  
 
 }

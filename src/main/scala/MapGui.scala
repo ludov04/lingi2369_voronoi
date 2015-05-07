@@ -36,7 +36,7 @@ class MapGui {
     val areas = polygonArray.map(_.getArea)
     val colors = (0 until polygonArray.length).map( i => {
       val colVal = (((areas(i)-areas.min)/(areas.max-areas.min))*255).toInt
-      new Color(255-colVal, colVal, 0, 200)
+      new Color(255-colVal, colVal, 0, 150)
     })
     for(i <- 0 until polygonArray.length) {
       val pol = polygonArray(i)
