@@ -1,7 +1,9 @@
 import com.vividsolutions.jts.geom.Coordinate
 
 /**
- * Created by ludov on 5/05/15.
+ * AUTHORS :
+ * Fabian Souris
+ * Ludovic Vanoorenberghe
  */
 
 trait Event {

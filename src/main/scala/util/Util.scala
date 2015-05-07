@@ -6,7 +6,9 @@ import com.vividsolutions.jts.geom.{GeometryFactory, LinearRing, Envelope, Coord
 import org.openstreetmap.gui.jmapviewer.{Coordinate => MapCoordinate}
 import com.github.tototoshi.csv._
 /**
- * Created by ludov on 5/05/15.
+ * AUTHORS :
+ * Fabian Souris
+ * Ludovic Vanoorenberghe
  */
 object Util {
   def round(x: Double) = {

@@ -1,5 +1,7 @@
 /**
- * Created by Fabian on 25-04-15.
+ * AUTHORS :
+ * Fabian Souris
+ * Ludovic Vanoorenberghe
  */
 
 import java.awt.{Toolkit, BorderLayout, Dimension}

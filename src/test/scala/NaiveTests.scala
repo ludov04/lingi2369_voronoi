@@ -4,7 +4,9 @@ import com.vividsolutions.jts.triangulate.VoronoiDiagramBuilder
 import org.scalatest.{Matchers, FlatSpec}
 
 /**
- * Created by ludov on 30/04/15.
+ * AUTHORS :
+ * Fabian Souris
+ * Ludovic Vanoorenberghe
  */
 
 

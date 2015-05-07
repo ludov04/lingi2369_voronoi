@@ -3,7 +3,9 @@ import com.vividsolutions.jts.geom.Coordinate
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * Created by Fabian on 26-04-15.
+ * AUTHORS :
+ * Fabian Souris
+ * Ludovic Vanoorenberghe
  */
 object GenPoints {
   def generate(x : Int, y : Int, n : Int): Array[Coordinate] = {

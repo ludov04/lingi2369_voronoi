@@ -3,7 +3,9 @@ import java.awt.Toolkit
 import com.vividsolutions.jts.geom.GeometryFactory
 
 /**
- * Created by Fabian on 26-04-15.
+ * AUTHORS :
+ * Fabian Souris
+ * Ludovic Vanoorenberghe
  */
 object Test {
   val screenSize = Toolkit.getDefaultToolkit().getScreenSize()

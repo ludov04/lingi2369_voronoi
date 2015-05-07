@@ -1,5 +1,7 @@
 /**
- * Created by ludov on 30/04/15.
+ * AUTHORS :
+ * Fabian Souris
+ * Ludovic Vanoorenberghe
  */
 
 import com.vividsolutions.jts.geom.Coordinate

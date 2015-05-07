@@ -1,5 +1,7 @@
 /**
- * Created by ludov on 24/04/15.
+ * AUTHORS :
+ * Fabian Souris
+ * Ludovic Vanoorenberghe
  */
 
 import java.util.Collection

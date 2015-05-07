@@ -9,7 +9,9 @@ import scala.collection.mutable.ArrayBuffer
 import scala.util.control.Breaks._
 
 /**
- * Created by ludov on 27/04/15.
+ * AUTHORS :
+ * Fabian Souris
+ * Ludovic Vanoorenberghe
  */
 
 /**

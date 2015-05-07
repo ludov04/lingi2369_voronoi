@@ -4,7 +4,9 @@ import structure._
 import util.Util
 
 /**
- * Created by Fabian on 27-04-15.
+ * AUTHORS :
+ * Fabian Souris
+ * Ludovic Vanoorenberghe
  */
 
 

@@ -12,7 +12,9 @@ import org.openstreetmap.gui.jmapviewer.{Coordinate => MapCoordinate, _}
 import scala.collection.mutable.ArrayBuffer
 
 /**
- * Created by ludov on 6/05/15.
+ * AUTHORS :
+ * Fabian Souris
+ * Ludovic Vanoorenberghe
  */
 class MapGui {
 
