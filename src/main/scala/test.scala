@@ -1,30 +1,50 @@
+import java.awt.Toolkit
+
 import com.vividsolutions.jts.geom.GeometryFactory
 
 /**
  * Created by Fabian on 26-04-15.
  */
 object Test {
+  val screenSize = Toolkit.getDefaultToolkit().getScreenSize()
+  val winWidth = (screenSize.getWidth-10).toInt
+  val winHeight = (screenSize.getHeight-150).toInt
+
+
   def run(algo : String, n : Array[Int], x : Int): Unit ={
     val fact = new GeometryFactory()
     val result = new Array[Long](n.length)
     algo match{
-      case "Naive" => {
-        for(i <- 0 until n.length){
+      case "Naive" =>
+        for (i <- 0 until n.length) {
           val tmpRes = new Array[Long](x)
-          for(j <- 0 until x){
-            val naive = new Naive(fact.createMultiPoint(GenPoints.generate(1000, 1000, n(i))))
+          for (j <- 0 until x) {
+            val naive = new Naive(GenPoints.generate(1000, 1000, n(i)))
             val start = System.currentTimeMillis()
-            val useless = naive.run()
+            naive.run
             tmpRes(j) = System.currentTimeMillis() - start
           }
-          result(i) = tmpRes.reduceLeft(_+_)/x
-          println(result(i))
+          result(i) = tmpRes.sum / x
+          println(n(i) + "\t" + result(i))
         }
-      }
+      case "Fortune" =>
+        for (i <- 0 until n.length) {
+          val tmpRes = new Array[Long](x)
+          for (j <- 0 until x) {
+            val fortune = new Fortune(GenPoints.generate(1000, 1000, n(i)), winWidth, winHeight)
+            val start = System.currentTimeMillis()
+            fortune.run
+            tmpRes(j) = System.currentTimeMillis() - start
+          }
+          result(i) = tmpRes.sum / x
+          println(n(i) + "\t" + result(i))
+        }
     }
   }
 
   def main(args: Array[String]): Unit = {
-    run("Naive", Array(50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600), 5)
+    run("Naive", Array(10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150), 10)
+    println("------------------------")
+    run("Fortune", Array(10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150), 10)
   }
 }

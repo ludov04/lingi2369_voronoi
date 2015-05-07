@@ -2,11 +2,10 @@
  * Created by Fabian on 25-04-15.
  */
 
-import java.awt.BorderLayout
-import java.awt.Dimension
+import java.awt.{Toolkit, BorderLayout, Dimension}
 import java.awt.event.{MouseEvent, MouseListener, ActionEvent, ActionListener}
 
-import javax.swing.{BorderFactory, JButton, JFrame, JPanel}
+import javax.swing._
 
 import com.vividsolutions.jts.geom._
 import com.vividsolutions.jts.io.WKTReader
@@ -19,8 +18,14 @@ class Gui(val content : Drawer) {
 
   val points = new ArrayBuffer[Coordinate]()
   val fact = new GeometryFactory()
-  val x = 1000
-  val y = 600
+  val screenSize = Toolkit.getDefaultToolkit().getScreenSize()
+  val x = (screenSize.getWidth-20).toInt
+  val y = (screenSize.getHeight-150).toInt
+  var nStep = 0
+  var fortuneS = new Fortune(points.toArray, x, y)
+  var q = 1
+
+
 
   def show() {
     val frame = new JFrame()
@@ -31,27 +36,58 @@ class Gui(val content : Drawer) {
 
     val buttons = new JPanel()
     val naiveButton = new JButton("Naive")
+    val autoStepButton = new JButton("Auto Step")
+    val stepButton = new JButton("Step")
     val fortuneButton = new JButton("Fortune")
     val genButton = new JButton("Generate")
     val clearButton = new JButton("Clear")
+    buttons.add(autoStepButton)
+    buttons.add(stepButton)
     buttons.add(fortuneButton)
     buttons.add(naiveButton)
     buttons.add(genButton)
     buttons.add(clearButton)
     frame.getContentPane.add(buttons, BorderLayout.SOUTH)
 
+
+    val timer = new Timer(20, null)
+    val stepListener = new ActionListener {
+      override def actionPerformed(e: ActionEvent): Unit = {
+        val result = if(fortuneS.runStep()) {
+          timer.stop()
+          fortuneS.computeDiagram()
+        }
+        else {
+          fortuneS.getBeachLine.union(fortuneS.computeStepDiagram).asInstanceOf[GeometryCollection]
+        }
+        content.refresh(points.toArray,  result )
+
+      }
+    }
+
+    timer.addActionListener(stepListener)
+    stepButton.addActionListener(stepListener)
+
+
+
+    autoStepButton.addActionListener(new ActionListener {
+      override def actionPerformed(e: ActionEvent): Unit = {
+        if(timer.isRunning) timer.stop()
+        else timer.start()
+      }
+    })
+
     fortuneButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        val fortune = new Fortune
-        DCEL.clear()
-        content.refresh(fortune.run(points.toArray))
+        val fortune = new Fortune(points.toArray, x, y)
+        content.refresh(fortune.run)
       }
     })
 
     naiveButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
-        val naive = new Naive(fact.createMultiPoint(points.toArray))
-        content.refresh(naive.run())
+        val naive = new Naive(points.toArray)
+        content.refresh(naive.run)
       }
     })
 
@@ -60,14 +96,16 @@ class Gui(val content : Drawer) {
         val n = 100
         val newP = GenPoints.generate(x, y, n)
         for(i <- 0 until n) points += newP(i)
+        fortuneS = new Fortune(points.toArray, x, y)
         content.refresh(points.toArray)
       }
     })
 
     clearButton.addActionListener(new ActionListener {
       override def actionPerformed(e: ActionEvent): Unit = {
+        fortuneS = new Fortune(points.toArray, x, y)
+        nStep = 0
         points.clear()
-        DCEL.clear()
         content.refresh(points.toArray, fact.createGeometryCollection(Array[Geometry]()))
       }
     })
@@ -77,6 +115,7 @@ class Gui(val content : Drawer) {
 
       override def mouseClicked(e: MouseEvent): Unit = {
         points += new Coordinate(e.getX, e.getY)
+        fortuneS = new Fortune(points.toArray, x, y)
         content.refresh(points.toArray)
       }
 

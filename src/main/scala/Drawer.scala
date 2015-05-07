@@ -6,8 +6,7 @@ import java.awt.BorderLayout
 import java.awt.Color
 import java.awt.Dimension
 import java.awt.Graphics
-import java.awt.event.ActionEvent
-import java.awt.event.ActionListener
+import java.awt.event.{MouseEvent, MouseListener, ActionEvent, ActionListener}
 import java.util.LinkedList
 
 import javax.swing.JButton
@@ -60,6 +59,7 @@ class Drawer(var points : Array[Coordinate], var result: GeometryCollection) ext
     for (j <- 0 until points.length) {
       g.setColor(Color.RED)
       g.fillOval(points(j).x.toInt - 3, points(j).y.toInt - 3, 6, 6)
+      //g.drawString(points(j).toString(),points(j).x.toInt,points(j).y.toInt)
     }
   }
 
@@ -74,10 +74,17 @@ class Drawer(var points : Array[Coordinate], var result: GeometryCollection) ext
     this.points = newP
     repaint()
   }
-    def refresh(newP : Array[Coordinate], newR : GeometryCollection): Unit ={
+  def refresh(newP : Array[Coordinate], newR : GeometryCollection): Unit ={
       this.points = newP
       this.result = newR
       repaint()
+  }
+
+  def refresh(newP : Array[Coordinate], newR : GeometryCollection, delay: Long): Unit ={
+    this.points = newP
+    this.result = newR
+    Thread.sleep(delay)
+    repaint()
   }
 
 }

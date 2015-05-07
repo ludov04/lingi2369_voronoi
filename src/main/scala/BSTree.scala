@@ -1,6 +1,7 @@
 import com.vividsolutions.jts.geom.Coordinate
 
-import structure.DCEL._
+import structure._
+import util.Util
 
 /**
  * Created by Fabian on 27-04-15.
@@ -21,19 +22,34 @@ case class SiteTuple(var sites: (Coordinate, Coordinate), var edge: HalfEdge) ex
 class NodeOrdering(y : Double) extends Ordering[ArcNode] {
 
   implicit def breakPoint(sites : (Coordinate, Coordinate)): Coordinate = {
-    val a = (1/(sites._1.y-y))-(1/(sites._2.y-y))
-    val b = (-2*sites._1.x/(sites._1.y-y))+(2*sites._2.x/(sites._2.y-y))
-    val c = (Math.pow(sites._1.x,2)/(sites._1.y-y))-(Math.pow(sites._2.x,2)/(sites._2.y-y))+sites._1.y-sites._2.y
-    val delta = Math.pow(b, 2) - (4*a*c)
-    val s1 = (-b-Math.sqrt(delta))/(2*a)
-    val s2 = (-b+Math.sqrt(delta))/(2*a)
-    //println(s1.toString() + " -- " + s2.toString())
-    if(sites._1.y > sites._2.y){
-      val sy = Math.pow(Math.min(s1, s2)-sites._1.x, 2)/(2*(sites._1.y-y))+y
-      new Coordinate(Math.min(s1, s2), sy)
+    if(sites._1.y == y){
+      val yb = Math.pow(sites._1.x - sites._2.x, 2) / (2 * (sites._2.y-y)) + sites._2.y - (y / 2)
+      new Coordinate(sites._1.x, yb)
+    } else if(sites._2.y == y) {
+      val yb = Math.pow(sites._2.x - sites._1.x, 2) / (2 * (sites._1.y - y)) + sites._1.y - (y / 2)
+      new Coordinate(sites._2.x, yb)
     } else {
-      val sy = Math.pow(Math.max(s1, s2)-sites._1.x, 2)/(2*(sites._1.y-y))+y
-      new Coordinate(Math.max(s1, s2), sy)
+      var s1 = 0d
+      var s2 = 0d
+      if(sites._1.y == sites._2.y){
+        s1 = (sites._1.x+sites._2.x)/2
+        s2 = s1
+      } else {
+        val a = (1 / (sites._1.y - y)) - (1 / (sites._2.y - y))
+        val b = (-2 * sites._1.x / (sites._1.y - y)) + (2 * sites._2.x / (sites._2.y - y))
+        val c = (Math.pow(sites._1.x, 2) / (sites._1.y - y)) - (Math.pow(sites._2.x, 2) / (sites._2.y - y)) + sites._1.y - sites._2.y
+        val delta = Math.pow(b, 2) - (4 * a * c)
+        s1 = (-b - Math.sqrt(delta)) / (2 * a)
+        s2 = (-b + Math.sqrt(delta)) / (2 * a)
+      }
+      //println(s1.toString() + " -- " + s2.toString())
+      if (sites._1.y > sites._2.y) {
+        val sy = Math.pow(Math.min(s1, s2) - sites._1.x, 2) / (2 * (sites._1.y - y)) + ((sites._1.y + y)/2)
+        new Coordinate(Math.min(s1, s2), sy)
+      } else {
+        val sy = Math.pow(Math.max(s1, s2) - sites._1.x, 2) / (2 * (sites._1.y - y)) + ((sites._1.y + y)/2)
+        new Coordinate(Math.max(s1, s2), sy)
+      }
     }
   }
   def compare(a: ArcNode, b : ArcNode): Int = {
@@ -47,13 +63,6 @@ class NodeOrdering(y : Double) extends Ordering[ArcNode] {
           case Arc(p, _, _, _) => site.x.compareTo(p.x)
         }
     }
-  }
-}
-
-object testrun {
-  def main(args: Array[String]): Unit = {
-    val ord = new NodeOrdering(0)
-    println(ord.breakPoint((new Coordinate(0,10), new Coordinate(10,1))))
   }
 }
 
@@ -90,9 +99,8 @@ case class Node(var left: BSTree, value: SiteTuple, var right: BSTree, var paren
 
   def isEmpty = false
 }
-// class Tree(var root : BSTree) {
 object Tree {
-
+  import Util._
   def removeArcNode(x: Leaf, edge: HalfEdge, root: BSTree): BSTree ={
     x match {
       case Leaf(value, parent) if parent == null => {
@@ -103,8 +111,8 @@ object Tree {
       case Leaf(valueL, parentL) => {
         val predTmp = valueL.pred
         val nextTmp = valueL.next
-        if(predTmp.isDefined) valueL.pred = nextTmp
-        if(nextTmp.isDefined) valueL.next = predTmp
+        predTmp.foreach(_.next = nextTmp)
+        nextTmp.foreach(_.pred = predTmp)
 
         parentL match {
           case Node(leftN, valueN, rightN, parentN) if leftN == x => {
@@ -113,7 +121,7 @@ object Tree {
               rightN
             }
             else {
-              val leftBound = findLeft(parentN)
+              val leftBound = findLeft(parentL)
               if(leftBound != null) {
                 leftBound.value.sites = (leftBound.value.sites._1, rightN.getLeftMost.value.site)
                 leftBound.value.edge = edge
@@ -139,9 +147,9 @@ object Tree {
               leftN
             }
             else {
-              val rightBound = findRight(parentN)
+              val rightBound = findRight(parentL)
               if(rightBound != null) {
-                rightBound.value.sites = (rightBound.value.sites._1, leftN.getRightMost.value.site)
+                rightBound.value.sites = (leftN.getRightMost.value.site, rightBound.value.sites._2)
                 rightBound.value.edge = edge
               }
               parentN match {
@@ -201,22 +209,24 @@ object Tree {
    * @param tree
    * @return the leaf that were replaced
    */
-  def addParabola(a : Arc, tree: BSTree)(implicit o : NodeOrdering) : (Leaf, BSTree) = {
+  def addParabola(a : Arc, tree: BSTree, dcel: DCEL)(implicit o : NodeOrdering) : (Leaf, BSTree) = {
     val node = search(a.site, tree)
 
-    val leftArc = node.value.copy(next = Some(a))
-    val rightArc = node.value.copy(pred = Some(a))
+    val leftArc = node.value.copy()
+    val rightArc = node.value.copy()
     //update links
     a.pred = Some(leftArc)
     a.next = Some(rightArc)
+    leftArc.next = Some(a)
+    rightArc.pred = Some(a)
 
     val leftLeaf = Leaf(leftArc, null)
     val newLeaf = Leaf(a, null)
     val rightLeaf = Leaf(rightArc, null)
 
-    val (h,_) = createEdge((a.pred.get.site, a.site))
+    val (g,h) = dcel.createEdge((a.pred.get.site, a.site))
 
-    val sub = Node(leftLeaf, SiteTuple((leftArc.site, a.site), h), newLeaf, null )
+    val sub = Node(leftLeaf, SiteTuple((leftArc.site, a.site), g), newLeaf, null )
     leftLeaf.parent = sub
     newLeaf.parent = sub
 
@@ -268,32 +278,28 @@ object Tree {
     import o._
     tree match {
       case v: Leaf => v
-      case Node(left, value, right, parent) if x.x < value.sites.x => search(x, left)
+      case Node(left, value, right, parent) if x.x <= value.sites.x => search(x, left)
       case Node(left, value, right, parent) if x.x >= value.sites.x => search(x, right)
       case _: EmptyT => throw new UnsupportedOperationException
+      case Node(left, value, right, parent) =>
+        println("x.x: " +  x.x + "  value.sites.x;  " + breakPoint(value.sites).x)
+        null
     }
   }
 
   def search(a: Arc, tree: BSTree)(implicit o : NodeOrdering): Leaf = {
     import o._
+    //printTree(tree)
     a match {
-      case Arc(_, None, _, _) => {
-        println("fin a wrong arc : leftMost arc")
-        tree.getLeftMost
-      }
-      case Arc(_, _, None, _) => {
-        println("fin a wrong arc : rightMost arc")
-        tree.getRightMost
-      }
+      case Arc(_, None, _, _) => tree.getLeftMost
+      case Arc(_, _, None, _) => tree.getRightMost
       case Arc(valA, Some(pred), Some(next), _) => {
         tree match {
-          case v: Leaf => {
-            if(v.value != a) println("find a wrong arc : other")
-            v
-          }
+          case v: Leaf => v
+          case Node(left, value, right, parent) if value.sites._1 == pred.site && value.sites._2 == a.site => search(a, right)(o)
+          case Node(left, value, right, parent) if value.sites._1 == a.site && value.sites._2 == next.site => search(a, left)(o)
           case Node(left, value, right, parent) if round((breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x)/2) < round(value.sites.x) => search(a, left)(o)
           case Node(left, value, right, parent) if round((breakPoint((a.site, next.site)).x+breakPoint((pred.site, a.site)).x)/2) == round(value.sites.x) => {
-            println("equal")
             if(value.sites._2 == a.site) search(a, right)(o)
             else search(a, left)(o)
           }
@@ -303,8 +309,27 @@ object Tree {
     }
   }
 
-  def round(x: Double) = {
-    Math.floor(x * 100) / 100
+
+  def printTree(tree: BSTree) : Unit = {
+    println("==============BEGIN TREE PRINT=====================")
+    if(tree.isEmpty) println("Empty tree")
+    else prettyPrint(tree, 1)
+    println("==============END TREE PRINT=====================")
+  }
+  def prettyPrint(tree: BSTree, indent: Int) : Unit = {
+    tree match {
+      case Leaf(value, _) => {
+        (0 until indent).foreach(x => print("\t\t"))
+        println(value.pred + " -- " + value.site + " -- " + value.next)
+      }
+      case Node(left, value, right, _) => {
+        prettyPrint(right, indent + 1)
+        (0 until indent).foreach(x => print("\t\t"))
+        println(value.sites)
+        prettyPrint(left, indent + 1)
+      }
+    }
+
   }
 
 }

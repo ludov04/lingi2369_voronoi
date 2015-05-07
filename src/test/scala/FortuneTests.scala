@@ -19,9 +19,8 @@ class CenterSpec extends FortuneSpec {
     arc2.pred = Some(arc1)
     arc2.next = Some(arc3)
 
-    val fortune = new Fortune()
 
-    val center = fortune.computeCenter(arc2)
+    val center = Fortune.computeCenter(arc2)
 
     center should be ('defined)
     center should be (Some(new Coordinate(21.51834862385321, -0.36238532110093047)))
@@ -34,9 +33,8 @@ class CenterSpec extends FortuneSpec {
 
     arc2.next = Some(arc3)
 
-    val fortune = new Fortune()
 
-    val center = fortune.computeCenter(arc2)
+    val center = Fortune.computeCenter(arc2)
     center should be ('empty)
 
   }
