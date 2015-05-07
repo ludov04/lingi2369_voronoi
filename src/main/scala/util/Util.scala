@@ -2,7 +2,7 @@ package util
 
 import java.io.File
 
-import com.vividsolutions.jts.geom.Coordinate
+import com.vividsolutions.jts.geom.{GeometryFactory, LinearRing, Envelope, Coordinate}
 import org.openstreetmap.gui.jmapviewer.{Coordinate => MapCoordinate}
 import com.github.tototoshi.csv._
 /**
@@ -11,6 +11,17 @@ import com.github.tototoshi.csv._
 object Util {
   def round(x: Double) = {
     Math.floor(x * 10000) / 10000
+  }
+
+  implicit def envelopeToLinearRing(env : Envelope) : LinearRing = {
+    val coordinatesArray = Array(
+      new Coordinate(env.getMinX, env.getMaxY, 0),
+      new Coordinate(env.getMaxX, env.getMaxY, 0),
+      new Coordinate(env.getMaxX, env.getMinY, 0),
+      new Coordinate(env.getMinX, env.getMinY, 0),
+      new Coordinate(env.getMinX, env.getMaxY, 0) // must be closed (closed mean last point is equal to first)
+    )
+    new GeometryFactory().createLinearRing(coordinatesArray)
   }
 
   def distance(x1: Coordinate, x2: Coordinate): Double = {

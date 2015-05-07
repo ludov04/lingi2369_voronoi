@@ -83,7 +83,7 @@ class Naive(val points: Array[Coordinate]) extends Voronoi {
 
     val cells = new ArrayBuffer[Geometry]()
     val expandBy: Double = Math.max(envelope.getWidth, envelope.getHeight)
-    envelope.expandBy(expandBy)
+    envelope.expandBy(1)
     computeSegmentMatrix(envelope)
     for( i <- 0 until n) {
       cells += computeVoronoiCell(i)

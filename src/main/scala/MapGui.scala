@@ -24,17 +24,22 @@ class MapGui {
   val map = new JMapViewer()
 
 
-  def addToMap(geoms : GeometryCollection) = {
-    val lines = (0 until geoms.getNumGeometries).map(geoms.getGeometryN(_)).filter()
-    val areas = (0 until lines.getNumGeometries).map(lines.getGeometryN(_).getArea)
-    val colors = (0 until lines.getNumGeometries).map( i => {
+  def addToMap(polygons : GeometryCollection) = {
+    val env = polygons.getEnvelopeInternal
+    val polygonArray = (0 until polygons.getNumGeometries).map(polygons.getGeometryN(_)).filter { polygon =>
+      polygon.getCoordinates.map { c =>
+        c.x != env.getMaxX && c.x != env.getMinX && c.y != env.getMaxY && c.y != env.getMinY
+      }.reduceLeft(_ && _)
+    }
+    val areas = polygonArray.map(_.getArea)
+    val colors = (0 until polygonArray.length).map( i => {
       val colVal = (((areas(i)-areas.min)/(areas.max-areas.min))*255).toInt
-      new Color(255-colVal, colVal, 0, 70)
+      new Color(255-colVal, colVal, 0, 200)
     })
-    for(i <- 0 until lines.getNumGeometries) {
-      val line = lines.getGeometryN(i)
-      val linePoints = line.getCoordinates
-      val points = linePoints.map { c =>
+    for(i <- 0 until polygonArray.length) {
+      val pol = polygonArray(i)
+      val polPoints = pol.getCoordinates
+      val points = polPoints.map { c =>
         val cMap = map.getPosition(c.x.toInt, c.y.toInt)
         new MapCoordinate(cMap.getLat, cMap.getLon)
       }
